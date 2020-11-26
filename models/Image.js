@@ -1,24 +1,23 @@
 const { Model } = require('../core/Model');
 const { Rule } = require('../helpers/validation/Rule');
 
-class User extends Model {
+class Image extends Model {
     /**
-     * User constructor
-     * @param   {number|null}  id        user id
-     * @param   {string|null}  email     user email
-     * @param   {string|null}  password  user password
-     * @param   {number}       roleId    user role
+     * Image constructor
+     * @param   {number}  id     image id
+     * @param   {string}  title  image title
+     * @param   {string}  path   image path
+     * @param   {string}  size   image size
      */
-    constructor(id, email, password, roleId) {
-        super();
+    constructor(id, title, path, size) {
         this.id = id;
-        this.email = email;
-        this.password = password;
-        this.roleId = roleId;
+        this.title = title;
+        this.path = path;
+        this.size = size;
     }
 
     static get tableName() {
-        return 'users';
+        return 'images';
     }
 
     static get rules() {
@@ -28,25 +27,25 @@ class User extends Model {
                 required: false,
                 min: 0,
             }),
-            email: new Rule({
+            title: new Rule({
                 type: 'string',
                 required: true,
                 minlength: 3,
                 maxlength: 255,
             }),
-            password: new Rule({
+            path: new Rule({
                 type: 'string',
                 required: true,
                 minlength: 3,
                 maxlength: 255,
             }),
-            roleId: new Rule({
-                type: 'integer',
+            size: new Rule({
+                type: 'string',
                 required: true,
-                min: 0,
+                allowed: ['small', 'medium', 'original']
             }),
         }
     }
 }
 
-module.exports = { User };
+module.exports = { Image }
