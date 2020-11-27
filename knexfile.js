@@ -1,15 +1,16 @@
 const path = require('path');
-const dotenv = require('dotenv');
+const { Config } = require('./helpers/Config');
 
-// apply environment variables
-dotenv.config();
+// setup configuration
+const config = new Config();
+config.load();
 
 module.exports = {
   client: 'pg',
   connection: {
-    user: process.env['PG_USERNAME'],
-    password: process.env['PG_PASSWORD'],
-    database: process.env['PG_DATABASE']
+    user: config.db.user,
+    password: config.db.password,
+    database: config.db.database,
   },
   migrations: {
     directory: path.join(__dirname, 'db', 'migrations')
