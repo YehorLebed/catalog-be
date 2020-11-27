@@ -8,27 +8,27 @@ class Product extends Model {
      * @param   {string}   title        product title
      * @param   {string}   description  product description
      * @param   {number}   price        product price
-     * @param   {boolean}  isPromo      is promo product
-     * @param   {number}   categoryId   product category id
-     * @param   {number}   createdAt    product time of creation
+     * @param   {boolean}  is_promo      is promo product
+     * @param   {number}   category_id   product category id
+     * @param   {number}   created_at    product time of creation
      */
-    constructor(id, title, description, price, isPromo, categoryId, createdAt) {
+    constructor(id, title, description, price, is_promo, category_id, created_at) {
         super();
         this.id = id;
         this.title = title;
         this.description = description;
         this.price = price;
-        this.isPromo = isPromo;
-        this.categoryId = categoryId;
-        this.createdAt = createdAt;
+        this.is_promo = is_promo;
+        this.category_id = category_id;
+        this.created_at = created_at;
     }
 
-    /**
-     * getter for table name
-     * @return  {string}
-     */
     static get tableName() {
         return 'products';
+    }
+
+    static get attributes() {
+        return ['title', 'description', 'price', 'is_promo', 'category_id', 'created_at'];
     }
 
     /**
@@ -60,16 +60,16 @@ class Product extends Model {
                 min: 0,
                 max: 999999,
             }),
-            isPromo: new Rule({
+            is_promo: new Rule({
                 type: 'boolean',
                 required: true,
             }),
-            categoryId: new Rule({
+            category_id: new Rule({
                 type: 'integer',
                 required: true,
                 min: 0,
             }),
-            createdAt: new Rule({
+            created_at: new Rule({
                 type: 'integer',
                 required: true,
                 min: 0,

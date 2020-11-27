@@ -6,8 +6,8 @@ try {
     config.load();
 
     const app = new App(config);
-    // app.applyMiddlewares();
-    // app.applyRoutes();
+    app.applyMiddlewares();
+    app.applyRoutes();
     app.run();
 }
 catch (error) {

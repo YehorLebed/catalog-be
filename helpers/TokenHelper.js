@@ -1,4 +1,5 @@
 const jwt = require('jsonwebtoken');
+const { User } = require('../models');
 const { UnprocessableDataError } = require("./errors/types/UnprocessableDataError");
 
 class TokenHelper {
@@ -14,13 +15,13 @@ class TokenHelper {
      * @return {Promise<string>}
      */
     static generateUserToken(user) {
-        return jwt.sign({ id: user.id, login: user.data.login }, TokenHelper.secret);
+        return jwt.sign({ id: user.id, email: user.email }, TokenHelper.secret);
     }
 
     /**
      * decode jwt token
      * @param {string} token
-     * @return {Promise<null|{id: number, login: string, role: string>}
+     * @return {Promise<null|{id: number, email: string, role: string>}
      */
     static async decodeToken(token) {
         try {

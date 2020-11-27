@@ -1,7 +1,12 @@
 const { ErrorHelper } = require('../helpers/ErrorHelper/ErrorHelper');
+const { UserService } = require('../services');
 
 class UserController {
 
+    /**
+     * UserController constructor
+     * @param   {UserService}  userService  user service
+     */
     constructor(userService) {
         this.userService = userService;
     }
@@ -36,7 +41,7 @@ class UserController {
         try {
             const data = req.data;
             const result = await this.userService.login(data);
-            return res.status(201).json({ token: result });
+            return res.status(200).json({ token: result });
         }
         catch (error) {
             const errorHelper = new ErrorHelper(error);

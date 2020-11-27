@@ -25,6 +25,10 @@ class Image extends Model {
         return 'images';
     }
 
+    static get attributes() {
+        return ['title', 'path', 'size'];
+    }
+
     /**
      * getter for attributes
      * @return  {string[]}

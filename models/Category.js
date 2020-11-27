@@ -6,13 +6,13 @@ class Category extends Model {
      * Category constructor
      * @param   {number}  id        category id
      * @param   {string}  title     category title
-     * @param   {number}  parentId  parent category id
+     * @param   {number}  parent_id  parent category id
      */
-    constructor(id, name, parentId) {
+    constructor(id, name, parent_id) {
         super();
         this.id = id;
         this.name = name;
-        this.parentId = parentId;
+        this.parent_id = parent_id;
     }
 
     /**
@@ -38,7 +38,7 @@ class Category extends Model {
                 required: false,
                 min: 0,
             }),
-            parentId: new Rule({
+            parent_id: new Rule({
                 type: 'integer',
                 required: false,
                 min: 0,

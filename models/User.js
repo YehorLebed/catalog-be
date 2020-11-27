@@ -1,5 +1,6 @@
-const { Model } = require('../core/Model');
 const { Rule } = require('../helpers/validator/Rule');
+const { Model } = require('../core/Model');
+const { Role } = require('./');
 
 class User extends Model {
     /**
@@ -15,6 +16,23 @@ class User extends Model {
         this.email = email;
         this.password = password;
         this.role_id = role_id;
+        this.role = new Role(role_id, null);
+    }
+
+    /**
+     * setter for role
+     * @param   {Role}  v  user role
+     */
+    set role(v) {
+        this._role = v;
+    }
+
+    /**
+     * setter for role
+     * @return   {Role}  v  user role
+     */
+    get role() {
+        return this._role;
     }
 
     /**
@@ -58,70 +76,6 @@ class User extends Model {
                 min: 0,
             }),
         }
-    }
-
-    /**
- * setter for id
- * @param   {number}  v  value
- */
-    set id(v) {
-        this._id = v;
-    }
-
-    /**
-     * setter for email
-     * @param   {string}  v  value
-     */
-    set email(v) {
-        this._email = v;
-    }
-
-    /**
-     * setter for password
-     * @param   {string}  v  value
-     */
-    set password(v) {
-        this._password = v;
-    }
-
-    /**
-     * setter for role_id
-     * @param   {number}  v  value
-     */
-    set role_id(v) {
-        this._role_id = v;
-    }
-
-    /**
-     * getter for role
-     * @return  {number}
-     */
-    get id() {
-        return this._id;
-    }
-
-    /**
-     * getter for email
-     * @return  {string}
-     */
-    get email() {
-        return this._email;
-    }
-
-    /**
-     * getter for password
-     * @return  {string}
-     */
-    get password() {
-        return this._password;
-    }
-
-    /**
-     * getter for role id
-     * @return  {number}
-     */
-    get role_id() {
-        return this._role_id;
     }
 }
 

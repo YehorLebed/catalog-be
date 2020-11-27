@@ -6,24 +6,22 @@ class Cart extends Model {
     /**
      * Cart constructor
      * @param   {number}         id         cart id
-     * @param   {number}         userId     owner id
+     * @param   {number}         user_id     owner id
      * @param   {CartProduct[]}  products   products
-     * @param   {number}         updatedAt  last updated time
+     * @param   {number}         updated_at  last updated time
      */
-    constructor(id, userId, products, updatedAt) {
+    constructor(id, user_id, products, updated_at) {
         super();
         this.id = id;
-        this.userId = userId;
+        this.user_id = user_id;
         this.products = products;
-        this.updatedAt = updatedAt;
+        this.updated_at = updated_at;
     }
 
-    /**
-     * getter for table name
-     * @return  {string}
-     */
-    static get tableName() {
-        return 'carts';
+    static get tableName() { return 'carts'; }
+
+    static get attributes() {
+        return ['user_id', 'products', 'updated_at'];
     }
 
     static get rules() {
@@ -33,13 +31,13 @@ class Cart extends Model {
                 required: false,
                 min: 0,
             }),
-            userId: new Rule({
+            user_id: new Rule({
                 type: 'integer',
                 required: true,
                 min: 0,
             }),
             products: CartProduct.rules,
-            updatedAt: new Rule({
+            updated_at: new Rule({
                 type: 'integer',
                 required: true,
                 min: 0
