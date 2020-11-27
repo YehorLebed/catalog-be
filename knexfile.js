@@ -8,7 +8,7 @@ config.load();
 module.exports = {
   client: 'pg',
   connection: {
-    user: config.db.user,
+    user: config.db.username,
     password: config.db.password,
     database: config.db.database,
   },

@@ -43,14 +43,21 @@ class RenderSeed {
         // prepare sql for items to insert
         let insertItems = '';
         items.forEach((item, idx) => {
-            let sql = '(';
+            insertItems += '(';
             columns.forEach((column, idx) => {
-                sql += idx !== columns.length - 1 ? `${item[column]},` : `${item[column]}`;
-            })
-            sql += idx !== items.length - 1 ? '),' : ')';
-        });
+                // add "'" if data is string
+                insertItems += typeof item[column] !== 'string'
+                    ? item[column] : `'${item[column]}'`;
 
-        return `insert into ${table}${insertColumns} values ${insertItems}`;
+                // add "," if not last item
+                if (idx !== columns.length - 1) {
+                    insertItems += ','
+                }
+            })
+            insertItems += idx !== items.length - 1
+                ? '),' : ')';
+        });
+        return `insert into ${table}(${insertColumns}) values ${insertItems}`;
     }
 }
 

@@ -1,6 +1,6 @@
 const { Model } = require('../core/Model');
 const { CartProduct } = require('./CartProduct');
-const { Rule } = require('../helpers/validation/Rule');
+const { Rule } = require('../helpers/validator/Rule');
 
 class Cart extends Model {
     /**
@@ -18,6 +18,10 @@ class Cart extends Model {
         this.updatedAt = updatedAt;
     }
 
+    /**
+     * getter for table name
+     * @return  {string}
+     */
     static get tableName() {
         return 'carts';
     }

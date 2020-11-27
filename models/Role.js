@@ -1,5 +1,5 @@
 const { Model } = require('../core/Model');
-const { Rule } = require('../helpers/validation/Rule');
+const { Rule } = require('../helpers/validator/Rule');
 
 class Role extends Model {
     /**
@@ -8,14 +8,23 @@ class Role extends Model {
      * @param   {string}  name  role name
      */
     constructor(id, name) {
+        super();
         this.id = id;
         this.name = name;
     }
 
+    /**
+     * getter for table name
+     * @return  {string}
+     */
     static get tableName() {
         return 'roles';
     }
 
+    /**
+     * getter for attributes
+     * @return  {string[]}
+     */
     static get attributes() {
         return ['name'];
     }

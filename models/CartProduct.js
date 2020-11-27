@@ -1,5 +1,5 @@
 const { Model } = require('../core/Model');
-const { Rule } = require('../helpers/validation/Rule');
+const { Rule } = require('../helpers/validator/Rule');
 
 class CartProduct extends Model {
     /**
@@ -15,6 +15,10 @@ class CartProduct extends Model {
         this.price = price;
     }
 
+    /**
+     * getter for table name
+     * @return  {string}
+     */
     static get tableName() {
         throw new TypeError(`Cart product is custom class and does not have table in db`);
     }

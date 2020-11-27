@@ -1,5 +1,5 @@
 const { Model } = require('../core/Model');
-const { Rule } = require('../helpers/validation/Rule');
+const { Rule } = require('../helpers/validator/Rule');
 
 class Category extends Model {
     /**
@@ -9,13 +9,26 @@ class Category extends Model {
      * @param   {number}  parentId  parent category id
      */
     constructor(id, name, parentId) {
+        super();
         this.id = id;
         this.name = name;
         this.parentId = parentId;
     }
 
+    /**
+     * getter for table name
+     * @return  {string}
+     */
     static get tableName() {
         return 'categories';
+    }
+
+    /**
+     * getter for attributes
+     * @return  {string[]}
+     */
+    static get attributes() {
+        return ['name', 'parent_id']
     }
 
     static get rules() {

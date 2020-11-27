@@ -1,5 +1,5 @@
 const { Model } = require('../core/Model');
-const { Rule } = require('../helpers/validation/Rule');
+const { Rule } = require('../helpers/validator/Rule');
 
 class Image extends Model {
     /**
@@ -10,14 +10,27 @@ class Image extends Model {
      * @param   {string}  size   image size
      */
     constructor(id, title, path, size) {
+        super();
         this.id = id;
         this.title = title;
         this.path = path;
         this.size = size;
     }
 
+    /**
+     * getter for table name
+     * @return  {string}
+     */
     static get tableName() {
         return 'images';
+    }
+
+    /**
+     * getter for attributes
+     * @return  {string[]}
+     */
+    static get attributes() {
+        return ['title', 'path', 'size'];
     }
 
     static get rules() {

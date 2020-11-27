@@ -1,5 +1,5 @@
 const { Model } = require('../core/Model');
-const { Rule } = require('../helpers/validation/Rule');
+const { Rule } = require('../helpers/validator/Rule');
 
 class Product extends Model {
     /**
@@ -13,6 +13,7 @@ class Product extends Model {
      * @param   {number}   createdAt    product time of creation
      */
     constructor(id, title, description, price, isPromo, categoryId, createdAt) {
+        super();
         this.id = id;
         this.title = title;
         this.description = description;
@@ -22,10 +23,18 @@ class Product extends Model {
         this.createdAt = createdAt;
     }
 
+    /**
+     * getter for table name
+     * @return  {string}
+     */
     static get tableName() {
         return 'products';
     }
 
+    /**
+     * getter for attributes
+     * @return  {string[]}
+     */
     static get rules() {
         return {
             id: new Rule({
