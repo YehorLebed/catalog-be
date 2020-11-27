@@ -16,6 +16,10 @@ class Role extends Model {
         return 'roles';
     }
 
+    static get attributes() {
+        return ['name'];
+    }
+
     static get rules() {
         return {
             id: new Rule({

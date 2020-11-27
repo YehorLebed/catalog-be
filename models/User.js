@@ -21,6 +21,10 @@ class User extends Model {
         return 'users';
     }
 
+    static get attributes() {
+        return ['email', 'password', 'roleId'];
+    }
+
     static get rules() {
         return {
             id: new Rule({

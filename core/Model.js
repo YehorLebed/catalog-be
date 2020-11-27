@@ -9,6 +9,14 @@ class Model {
     }
 
     /**
+     * getter for table attributes
+     * @return  {string[]}
+     */
+    static get attributes() {
+        throw new TypeError(`'attributes' is abstract and should be implemented in child classes.`);
+    }
+
+    /**
      * getter for validation rules
      * @return  {object}  validation rules
      */
