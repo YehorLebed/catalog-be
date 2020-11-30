@@ -36,26 +36,18 @@ class Database {
     }
 
     /**
-     * create postgres client object
+     * create connection to db and return client
      * @return  {Client}
      */
-    _getClient() {
-        return new Client({
-            user: this._username,
-            database: this._database,
-            password: this._password
-        });
-    }
-
-    /**
-     * create connection to db
-     * @return  {Client}
-     */
-    async getConnection() {
+    async createClient() {
         try {
-            const connection = this._getClient();
-            await connection.connect();
-            return connection;
+            const client = new Client({
+                user: this._username,
+                database: this._database,
+                password: this._password
+            });
+            await client.connect();
+            return client;
         }
         catch (error) {
             throw new ServerError('Failed to connect to database.');

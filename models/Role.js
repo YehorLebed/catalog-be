@@ -1,5 +1,6 @@
-const { Model } = require('../core/Model');
 const { Rule } = require('../helpers/validator/Rule');
+const { RoleBuilder } = require('../builder');
+const { Model } = require('../core/Model');
 
 class Role extends Model {
     /**
@@ -13,20 +14,13 @@ class Role extends Model {
         this.name = name;
     }
 
-    /**
-     * getter for table name
-     * @return  {string}
-     */
-    static get tableName() {
-        return 'roles';
-    }
 
     /**
-     * getter for attributes
-     * @return  {string[]}
+     * initiate user build
+     * @return  {RoleBuilder}
      */
-    static get attributes() {
-        return ['name'];
+    static Build() {
+        return RoleBuilder.Build();
     }
 
     static get rules() {

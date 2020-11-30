@@ -24,6 +24,7 @@ class ErrorHelper {
      * @return  {Response}
      */
     processResponse(response) {
+        console.log(this);
         return response
             .status(this.error.status)
             .json({ errors: this.error.errors });

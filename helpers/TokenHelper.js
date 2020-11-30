@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
-const { UnprocessableDataError } = require("./errors/types/UnprocessableDataError");
+const { UnprocessableEntityError } = require('../helpers/ErrorHelper/customErrors');
 
 class TokenHelper {
     static secret = 'wolf'
@@ -28,7 +28,7 @@ class TokenHelper {
             const decoded = await jwt.decode(token, TokenHelper.secret);
             return decoded;
         } catch (error) {
-            throw new UnprocessableDataError(['Failed to decode token']);
+            throw new UnprocessableEntityError(['Failed to decode token']);
         }
     }
 }

@@ -18,14 +18,14 @@ class App {
      * import and apply routes
      */
     applyRoutes() {
-        this.application.use(require('../routes'));
+        this.application.use(require('../routes').router);
     }
 
     /**
      * import and apply middlewares
      */
     applyMiddlewares() {
-        this.application.use(require('../middlewares'));
+        this.application.use(require('../middlewares').middlewares);
     }
 
     /**

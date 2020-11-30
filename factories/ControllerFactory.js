@@ -1,27 +1,34 @@
+const { ServiceFactory } = require('./ServiceFactory');
 const { UserController } = require('../controllers');
-const { UserService } = require('../services');
-const { UserRepository } = require('../repositories');
-const { UserFactory } = require('./UserFactory');
-
-const { DatabaseClient } = require('../core/DatabaseClient');
-const { Database } = require('../core/Database');
 
 class ControllerFactory {
-    async static create(type) {
-        if (type === 'User') {
-            // create database client
-            const client = await Database.instance.getConnection();
-            const databaseClient = new DatabaseClient(client);
-            //  create user factory
-            const factory = new UserFactory();
-            // create repository
-            const repository = new UserRepository(factory, databaseClient);
-            // create service
-            const service = new UserService(repository);
-            // create controller
-            const controller = new UserController(service);
-            return controller;
+
+    /**
+     * allowed dao types
+     * @return  {string[]}
+     */
+    static get types() {
+        return ['user'];
+    }
+
+    /**
+     * get controller
+     * @param   {string}          type  controller type
+     * @return  {Promise<UserController>}
+     */
+    static async createController(type) {
+        if (!type || typeof type !== 'string' || !ControllerFactory.types.includes(type)) {
+            return null;
         }
+
+        // create controller
+        if (type === 'user') {
+            return new UserController(
+                await ServiceFactory.createService('user')
+            );
+        }
+
+        return null;
     }
 }
 

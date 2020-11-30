@@ -1,6 +1,6 @@
 const { User } = require('../models');
-const { UserRepository } = require('../repositories');
-const { Validator } = require('../helpers/Validator');
+const { UserDao, RoleDao } = require('../dao');
+const { Validator } = require('../helpers/validator/Validator');
 const { HashHelper } = require('../helpers/HashHelper');
 const { TokenHelper } = require('../helpers/TokenHelper');
 const { UnprocessableEntityError } = require('../helpers/ErrorHelper/customErrors');
@@ -9,10 +9,48 @@ class UserService {
 
     /**
      * UserService constructor
-     * @param   {UserRepository}  userRepository  user repository
+     * @param   {UserDao}  userDao  user dao
+     * @param   {RoleDao}  roleDao  role dao
      */
-    constructor(userRepository) {
-        this.userRepository = userRepository;
+    constructor(userDao, roleDao) {
+        this.userDao = userDao;
+        this.roleDao = roleDao;
+    }
+
+    /**
+     * getter fro userDao
+     * @return  {UserDao}
+     */
+    get userDao() {
+        return this._userDao;
+    }
+
+    /**
+     * setter for userDao
+     * @param   {UserDao}  userDao userDao
+     */
+    set userDao(userDao) {
+        if (userDao instanceof UserDao) {
+            this._userDao = userDao;
+        }
+    }
+
+    /**
+ * getter fro roleDao
+ * @return  {RoleDao}
+ */
+    get roleDao() {
+        return this._roleDao;
+    }
+
+    /**
+     * setter for roleDao
+     * @param   {RoleDao}  roleDao roleDao
+     */
+    set roleDao(roleDao) {
+        if (roleDao instanceof RoleDao) {
+            this._roleDao = roleDao;
+        }
     }
 
     /**
@@ -28,15 +66,22 @@ class UserService {
         }
 
         // check if user with the same email exists in database
-        const userExists = await this.userRepository.getUserByEmail(data.email);
+        const userExists = await this.userDao.getByProperty('email', data.email);
         if (userExists) {
             throw new UnprocessableEntityError(`User with email ${data.email} exists`);
         }
 
         // hash password and save
-        data.password = await HashHelper.hashPassword(data.password);
-        const created = await this.userRepository.createCustomer(data);
-        return created;
+        const hashedPassword = await HashHelper.hashPassword(data.password);
+        // get customer role instance
+        const customerRole = await this.roleDao.getByProperty('name', 'customer');
+
+        // create user instance
+        return this.userDao.create(User.Build()
+            .addEmail(data.email)
+            .addPassword(hashedPassword)
+            .addRole(customerRole)
+            .build());
     }
 
     /**
@@ -51,13 +96,13 @@ class UserService {
         }
 
         // check if user with the same email exists in database
-        const user = await this.userRepository.getUserByEmail(data.email);
+        const user = await this.userDao.getByProperty('email', data.email);
         if (!user || !(await HashHelper.compare(data.password, user.password))) {
             throw new UnprocessableEntityError(`Email or password is invalid`);
         }
 
-        const token = await TokenHelper.generateUserToken(user);
-        return token;
+        // generate jwt token
+        return TokenHelper.generateUserToken(user);
     }
 }
 

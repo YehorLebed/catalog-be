@@ -91,7 +91,7 @@ class Rule {
      */
     set max(v) {
         Rule.validateNumberRule('max', v)
-        this.max = v;
+        this._max = v;
     }
 
     /**
@@ -100,7 +100,7 @@ class Rule {
      * @param   {number}  value  rule value
      */
     static validateNumberRule(name, value) {
-        if (typeof value !== 'number' || !isNaN(v)) {
+        if (typeof value !== 'number' || isNaN(value)) {
             throw new TypeError(`Invalid '${name}' rule provided`);
         }
     }

@@ -1,6 +1,6 @@
 const { Client } = require('pg');
 
-class DatabaseClient {
+class Dao {
 
     /**
      * DatabaseClient constructor
@@ -27,4 +27,4 @@ class DatabaseClient {
     }
 }
 
-module.exports = { DatabaseClient };
+module.exports = { Dao };
