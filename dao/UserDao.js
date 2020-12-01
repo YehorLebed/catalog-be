@@ -67,7 +67,7 @@ class UserDao extends Dao {
         const sql = `
         select u.id, u.email, u.password, r.id as role_id, r.name as role_name
         from users u join roles r on (u.role_id = r.id)
-        limit $1 offser $2`;
+        limit $1 offset $2`;
         const offset = (page - 1) * amount;
         const values = [amount, offset];
 
@@ -76,11 +76,11 @@ class UserDao extends Dao {
             const res = data.rows;
 
             if (res.length !== 0) {
-                res.forEach(() => {
+                res.forEach((row) => {
                     // create user role
                     const role = RoleBuilder.Build()
-                        .addId(res['role_id'])
-                        .addName(res['role_name'])
+                        .addId(row['role_id'])
+                        .addName(row['role_name'])
                         .build();
 
                     // create user

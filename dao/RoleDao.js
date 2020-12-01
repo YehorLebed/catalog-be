@@ -14,7 +14,7 @@ class RoleDao extends Dao {
     }
 
     /**
-     * get user by property and its value
+     * get role by property and its value
      * @param   {string}         name   attribute name
      * @param   {string|number}  value  attribute value
      * @return  {Promise<Role>}
@@ -31,7 +31,7 @@ class RoleDao extends Dao {
             const res = data.rows[0];
 
             if (res) {
-                // create user role
+                // create role role
                 role = RoleBuilder.Build()
                     .addId(res['id'])
                     .addName(res['name'])
@@ -45,7 +45,7 @@ class RoleDao extends Dao {
     }
 
     /**
-     * get all users
+     * get all roles
      * @param   {number}  page    page number
      * @param   {number}  amount  amount number
      * @return  {Promise<Role[]>}
@@ -53,7 +53,7 @@ class RoleDao extends Dao {
     async getAll(page, amount) {
         const roles = [];
 
-        const sql = `select id, name from roles limit $1 offser $2`;
+        const sql = `select id, name from roles limit $1 offset $2`;
         const offset = (page - 1) * amount;
         const values = [amount, offset];
 
@@ -62,14 +62,14 @@ class RoleDao extends Dao {
             const res = data.rows;
 
             if (res.length !== 0) {
-                res.forEach(() => {
-                    // create user role
+                res.forEach((row) => {
+                    // create role role
                     const role = RoleBuilder.Build()
-                        .addId(res['role_id'])
-                        .addName(res['role_name'])
+                        .addId(row['role_id'])
+                        .addName(row['role_name'])
                         .build();
 
-                    // add user to list
+                    // add role to list
                     roles.push(role);
                 });
             }
@@ -81,7 +81,7 @@ class RoleDao extends Dao {
     }
 
     /**
-     * create user in database
+     * create role in database
      * @param   {Role}  role  role
      * @return  {Promise<Role>}
      */
@@ -95,7 +95,7 @@ class RoleDao extends Dao {
             const data = await this.client.query(sql, values);
             const res = data.rows[0];
 
-            // expand user with inserted user id
+            // expand role with inserted role id
             createdRole = RoleBuilder.Build()
                 .setRole(role)
                 .addId(res['id'])
@@ -108,7 +108,7 @@ class RoleDao extends Dao {
     }
 
     /**
-     * update user by property
+     * update role by property
      * @param   {Role}           role   role
      * @param   {string}         name   property name
      * @param   {number|string}  value  property value
@@ -132,19 +132,19 @@ class RoleDao extends Dao {
     }
 
     /**
-     * delete user by id
-     * @param   {number}  id user id
+     * delete role by id
+     * @param   {number}  id role id
      * @return  {Promise<void>}
      */
     async deleteById(id) {
-        const sql = `delete from users where id = $1`;
+        const sql = `delete from roles where id = $1`;
         const values = [id];
 
         try {
             await this.client.query(sql, values);
         }
         catch (error) {
-            throw new ServerError(`Failed to delete user with id '${id}' from database`);
+            throw new ServerError(`Failed to delete role with id '${id}' from database`);
         }
     }
 }

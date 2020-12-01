@@ -1,6 +1,6 @@
 const { Product } = require('../models/Product');
 const { Category } = require('../models/Category');
-const { Images } = require('../models/Images');
+const { Image } = require('../models/Image');
 
 class ProductBuilder {
 

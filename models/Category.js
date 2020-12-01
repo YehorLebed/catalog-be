@@ -4,41 +4,24 @@ const { Rule } = require('../helpers/validator/Rule');
 class Category extends Model {
     /**
      * Category constructor
-     * @param   {number}  id        category id
-     * @param   {string}  title     category title
-     * @param   {number}  parent_id  parent category id
+     * @param   {number}    id              category id
+     * @param   {string}    title           category title
+     * @param   {Category}  parent  parent category id
      */
-    constructor(id, name, parent_id) {
+    constructor(id, name, parent) {
         super();
         this.id = id;
         this.name = name;
-        this.parent_id = parent_id;
+        this.parent = parent;
     }
 
     /**
-     * getter for table name
-     * @return  {string}
+     * getter for rules
+     * @return  {Object.<string, Rule>}
      */
-    static get tableName() {
-        return 'categories';
-    }
-
-    /**
-     * getter for attributes
-     * @return  {string[]}
-     */
-    static get attributes() {
-        return ['name', 'parent_id']
-    }
-
     static get rules() {
         return {
             id: new Rule({
-                type: 'integer',
-                required: false,
-                min: 0,
-            }),
-            parent_id: new Rule({
                 type: 'integer',
                 required: false,
                 min: 0,
