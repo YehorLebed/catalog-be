@@ -41,7 +41,7 @@ class Rule {
      * @param   {string}  v  type
      */
     set type(v) {
-        if (typeof v !== 'string' || Rule.types.includes(v)) {
+        if (typeof v !== 'string' || !Rule.types.includes(v)) {
             throw new TypeError(`Invalid 'type' rule provided`);
         }
         this._type = v;

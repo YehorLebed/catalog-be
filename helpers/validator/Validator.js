@@ -41,7 +41,7 @@ class Validator {
         }
 
         const errors = [];
-        for (let property of modelRules) {
+        for (let property in modelRules) {
             // define property and its rule for validation
             const propValue = data[property];
             const propRule = modelRules[property];
@@ -50,6 +50,9 @@ class Validator {
             if (propRule.required !== undefined) {
                 if (propRule.required && propValue == null) {
                     errors.push(Validator.messageRequired(property));
+                    continue;
+                }
+                else if (!propRule.required && propValue == null) {
                     continue;
                 }
             }
@@ -115,7 +118,7 @@ class Validator {
                     errors.push(Validator.messageInvalidType(property, 'string'));
                     continue;
                 }
-                else if (propValue.length > propRule.minlength) {
+                else if (propValue.length < propRule.minlength) {
                     errors.push(Validator.messageReuiredLength(property, 'min', propRule.minlength));
                     continue;
                 }

@@ -20,7 +20,7 @@ class UserController {
      */
     async registration(req, res, next) {
         try {
-            const data = req.data;
+            const data = req.body;
             const result = await this.userService.create(data);
             return res.status(201).json(result)
         }
@@ -39,7 +39,7 @@ class UserController {
      */
     async login(req, res, next) {
         try {
-            const data = req.data;
+            const data = req.body;
             const result = await this.userService.login(data);
             return res.status(200).json({ token: result });
         }
