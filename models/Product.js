@@ -1,39 +1,35 @@
 const { Model } = require('../core/Model');
+const { Image } = require('./Image');
+const { Category } = require('./Category');
 const { Rule } = require('../helpers/validator/Rule');
 
 class Product extends Model {
     /**
      * Product constructor
-     * @param   {number}   id           product id
-     * @param   {string}   title        product title
-     * @param   {string}   description  product description
-     * @param   {number}   price        product price
-     * @param   {boolean}  is_promo      is promo product
-     * @param   {number}   category_id   product category id
-     * @param   {number}   created_at    product time of creation
+     * @param   {number}     id             product id
+     * @param   {string}     title          product title
+     * @param   {string}     description    product description
+     * @param   {number}     price          product price
+     * @param   {boolean}    isPromo       is promo product
+     * @param   {Category}   category       product category
+     * @param   {Image[]}    images         product images
+     * @param   {number}     createdAt     product time of creation
      */
-    constructor(id, title, description, price, is_promo, category_id, created_at) {
+    constructor(id = null, title = null, description = null, price = null, isPromo = null, category = null, images = [], createdAt = null) {
         super();
         this.id = id;
         this.title = title;
         this.description = description;
         this.price = price;
-        this.is_promo = is_promo;
-        this.category_id = category_id;
-        this.created_at = created_at;
-    }
-
-    static get tableName() {
-        return 'products';
-    }
-
-    static get attributes() {
-        return ['title', 'description', 'price', 'is_promo', 'category_id', 'created_at'];
+        this.isPromo = isPromo;
+        this.category = category;
+        this.images = images
+        this.createdAt = createdAt;
     }
 
     /**
      * getter for attributes
-     * @return  {string[]}
+     * @return  {Object.<string, Rule>}
      */
     static get rules() {
         return {
@@ -60,16 +56,11 @@ class Product extends Model {
                 min: 0,
                 max: 999999,
             }),
-            is_promo: new Rule({
+            isPromo: new Rule({
                 type: 'boolean',
                 required: true,
             }),
-            category_id: new Rule({
-                type: 'integer',
-                required: true,
-                min: 0,
-            }),
-            created_at: new Rule({
+            createdAt: new Rule({
                 type: 'integer',
                 required: true,
                 min: 0,

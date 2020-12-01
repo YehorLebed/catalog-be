@@ -10,12 +10,12 @@ class User extends Model {
      * @param   {string}  password  user password
      * @param   {Role}    role      user role
      */
-    constructor(id, email, password, role) {
+    constructor(id = null, email = null, password = null, role = null) {
         super();
-        this.id = id || null;
-        this.email = email || null;
-        this.password = password || null;
-        this.role = role || null;
+        this.id = id;
+        this.email = email;
+        this.password = password;
+        this.role = role;
     }
 
     /**

@@ -9,7 +9,7 @@ class Image extends Model {
      * @param   {string}  path   image path
      * @param   {string}  size   image size
      */
-    constructor(id, title, path, size) {
+    constructor(id = null, title = null, path = null, size = null) {
         super();
         this.id = id;
         this.title = title;
@@ -18,25 +18,9 @@ class Image extends Model {
     }
 
     /**
-     * getter for table name
-     * @return  {string}
+     * getter for rules
+     * @return  {Object.<string, Rule>}
      */
-    static get tableName() {
-        return 'images';
-    }
-
-    static get attributes() {
-        return ['title', 'path', 'size'];
-    }
-
-    /**
-     * getter for attributes
-     * @return  {string[]}
-     */
-    static get attributes() {
-        return ['title', 'path', 'size'];
-    }
-
     static get rules() {
         return {
             id: new Rule({
@@ -53,8 +37,6 @@ class Image extends Model {
             path: new Rule({
                 type: 'string',
                 required: true,
-                minlength: 3,
-                maxlength: 255,
             }),
             size: new Rule({
                 type: 'string',

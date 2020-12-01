@@ -7,7 +7,7 @@ class Role extends Model {
      * @param   {number}  id    role id
      * @param   {string}  name  role name
      */
-    constructor(id, name) {
+    constructor(id = null, name = null) {
         super();
         this.id = id;
         this.name = name;
