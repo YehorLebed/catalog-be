@@ -1,4 +1,5 @@
-const { User, Role } = require('../models');
+const { Role } = require('../models/User');
+const { User } = require('../models/User');
 
 class UserBuilder {
 
@@ -99,7 +100,7 @@ class UserBuilder {
      * @return  {User}
      */
     get user() {
-        return this.user;
+        return this._user;
     }
 
     /**
@@ -107,7 +108,7 @@ class UserBuilder {
      * @param {User} user user
      */
     set user(user) {
-        this.user = user;
+        this._user = user;
     }
 }
 

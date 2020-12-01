@@ -1,7 +1,8 @@
-const { ServerError } = require('../helpers/ErrorHelper/customErrors');
-const { User, Role } = require('../models');
-const { Dao } = require('../core/Dao');
 const { Client } = require('pg');
+const { Dao } = require('../core/Dao');
+const { User, Role } = require('../models');
+const { RoleBuilder, UserBuilder } = require('../builder')
+const { ServerError } = require('../helpers/ErrorHelper/customErrors');
 
 class UserDao extends Dao {
     /**
@@ -33,13 +34,13 @@ class UserDao extends Dao {
             const res = data.rows[0];
 
             // create user role
-            const role = Role.Build()
+            const role = RoleBuilder.Build()
                 .addId(res['role_id'])
                 .addName(res['role_name'])
                 .build();
 
             // create user
-            user = User.Build()
+            user = UserBuilder.Build()
                 .addId(res['id'])
                 .addEmail(res['email'])
                 .addPassword(res['password'])
@@ -74,13 +75,13 @@ class UserDao extends Dao {
 
             res.forEach(() => {
                 // create user role
-                const role = Role.Build()
+                const role = RoleBuilder.Build()
                     .addId(res['role_id'])
                     .addName(res['role_name'])
                     .build();
 
                 // create user
-                const user = User.Build()
+                const user = UserBuilder.Build()
                     .addId(res['id'])
                     .addEmail(res['email'])
                     .addPassword(res['password'])
@@ -116,7 +117,7 @@ class UserDao extends Dao {
             const res = data.rows[0];
 
             // expand user with inserted user id
-            createdUser = User.Build()
+            createdUser = UserBuilder.Build()
                 .setUser(user)
                 .addId(res['id'])
                 .build();

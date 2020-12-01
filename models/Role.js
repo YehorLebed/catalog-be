@@ -1,5 +1,4 @@
 const { Rule } = require('../helpers/validator/Rule');
-const { RoleBuilder } = require('../builder');
 const { Model } = require('../core/Model');
 
 class Role extends Model {
@@ -12,15 +11,6 @@ class Role extends Model {
         super();
         this.id = id;
         this.name = name;
-    }
-
-
-    /**
-     * initiate user build
-     * @return  {RoleBuilder}
-     */
-    static Build() {
-        return RoleBuilder.Build();
     }
 
     static get rules() {

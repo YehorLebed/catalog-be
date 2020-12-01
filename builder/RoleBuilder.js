@@ -1,4 +1,4 @@
-const { Role } = require('../models');
+const { Role } = require('../models/Role');
 
 class RoleBuilder {
 
@@ -79,7 +79,7 @@ class RoleBuilder {
      * @return  {Role}
      */
     get role() {
-        return this.role;
+        return this._role;
     }
 
     /**
@@ -87,7 +87,7 @@ class RoleBuilder {
      * @param {Role} role role
      */
     set role(role) {
-        this.role = role;
+        this._role = role;
     }
 }
 

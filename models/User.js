@@ -1,5 +1,4 @@
 const { Rule } = require('../helpers/validator/Rule');
-const { UserBuilder } = require('../builder');
 const { Model } = require('../core/Model');
 const { Role } = require('./');
 
@@ -17,14 +16,6 @@ class User extends Model {
         this.email = email || null;
         this.password = password || null;
         this.role = role || null;
-    }
-
-    /**
-     * initiate user build
-     * @return  {UserBuilder}
-     */
-    static Build() {
-        return UserBuilder.Build();
     }
 
     /**
