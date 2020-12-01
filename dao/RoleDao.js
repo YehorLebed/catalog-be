@@ -1,7 +1,8 @@
-const { ServerError } = require('../helpers/ErrorHelper/customErrors');
-const { Dao } = require('../core/Dao');
-const { Role } = require('../models');
 const { Client } = require('pg');
+const { Role } = require('../models');
+const { Dao } = require('../core/Dao');
+const { RoleBuilder } = require('../builder');
+const { ServerError } = require('../helpers/ErrorHelper/customErrors');
 
 class RoleDao extends Dao {
     /**
@@ -29,11 +30,13 @@ class RoleDao extends Dao {
             const data = await this.client.query(sql, values);
             const res = data.rows[0];
 
-            // create user role
-            role = Role.Build()
-                .addId(res['id'])
-                .addName(res['name'])
-                .build();
+            if (res) {
+                // create user role
+                role = RoleBuilder.Build()
+                    .addId(res['id'])
+                    .addName(res['name'])
+                    .build();
+            }
         }
         catch (error) {
             throw new ServerError(`Failed to get role by property '${name}' from database`);
@@ -58,16 +61,18 @@ class RoleDao extends Dao {
             const data = await this.client.query(sql, values);
             const res = data.rows;
 
-            res.forEach(() => {
-                // create user role
-                const role = Role.Build()
-                    .addId(res['role_id'])
-                    .addName(res['role_name'])
-                    .build();
+            if (res.length !== 0) {
+                res.forEach(() => {
+                    // create user role
+                    const role = RoleBuilder.Build()
+                        .addId(res['role_id'])
+                        .addName(res['role_name'])
+                        .build();
 
-                // add user to list
-                roles.push(role);
-            });
+                    // add user to list
+                    roles.push(role);
+                });
+            }
         }
         catch (error) {
             throw new ServerError('Failed to get roles from database');
@@ -91,7 +96,7 @@ class RoleDao extends Dao {
             const res = data.rows[0];
 
             // expand user with inserted user id
-            createdRole = Role.Build()
+            createdRole = RoleBuilder.Build()
                 .setRole(role)
                 .addId(res['id'])
                 .build();

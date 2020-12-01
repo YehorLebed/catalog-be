@@ -33,19 +33,21 @@ class UserDao extends Dao {
             const data = await this.client.query(sql, values);
             const res = data.rows[0];
 
-            // create user role
-            const role = RoleBuilder.Build()
-                .addId(res['role_id'])
-                .addName(res['role_name'])
-                .build();
+            if (res) {
+                // create user role
+                const role = RoleBuilder.Build()
+                    .addId(res['role_id'])
+                    .addName(res['role_name'])
+                    .build();
 
-            // create user
-            user = UserBuilder.Build()
-                .addId(res['id'])
-                .addEmail(res['email'])
-                .addPassword(res['password'])
-                .addRole(role)
-                .build();
+                // create user
+                user = UserBuilder.Build()
+                    .addId(res['id'])
+                    .addEmail(res['email'])
+                    .addPassword(res['password'])
+                    .addRole(role)
+                    .build();
+            }
         }
         catch (error) {
             throw new ServerError(`Failed to get user by property '${name}' from database`);
@@ -73,24 +75,26 @@ class UserDao extends Dao {
             const data = await this.client.query(sql, values);
             const res = data.rows;
 
-            res.forEach(() => {
-                // create user role
-                const role = RoleBuilder.Build()
-                    .addId(res['role_id'])
-                    .addName(res['role_name'])
-                    .build();
+            if (res.length !== 0) {
+                res.forEach(() => {
+                    // create user role
+                    const role = RoleBuilder.Build()
+                        .addId(res['role_id'])
+                        .addName(res['role_name'])
+                        .build();
 
-                // create user
-                const user = UserBuilder.Build()
-                    .addId(res['id'])
-                    .addEmail(res['email'])
-                    .addPassword(res['password'])
-                    .addRole(role)
-                    .build();
+                    // create user
+                    const user = UserBuilder.Build()
+                        .addId(res['id'])
+                        .addEmail(res['email'])
+                        .addPassword(res['password'])
+                        .addRole(role)
+                        .build();
 
-                // add user to list
-                users.push(user);
-            });
+                    // add user to list
+                    users.push(user);
+                });
+            }
         }
         catch (error) {
             throw new ServerError('Failed to get users from database');
