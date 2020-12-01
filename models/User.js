@@ -31,6 +31,7 @@ class User extends Model {
             }),
             email: new Rule({
                 type: 'string',
+                pattern: Rule.patternEmail,
                 required: true,
                 minlength: 3,
                 maxlength: 255,

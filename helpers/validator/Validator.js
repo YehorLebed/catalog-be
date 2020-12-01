@@ -76,6 +76,18 @@ class Validator {
                 }
             }
 
+            // validate pattern values
+            if (propRule.pattern !== undefined) {
+                if (typeof propValue !== 'string') {
+                    errors.push(Validator.messageInvalidType(property, 'string'));
+                    continue;
+                }
+                else if (!propValue.match(propRule.pattern)) {
+                    errors.push(Validator.messageNotAllowed(property));
+                    continue;
+                }
+            }
+
             // validate max value
             if (propRule.max !== undefined) {
                 if (typeof propValue !== 'number' || isNaN(propValue)) {

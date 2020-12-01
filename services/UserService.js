@@ -1,8 +1,9 @@
 const { User } = require('../models');
+const { UserBuilder } = require('../builder');
 const { UserDao, RoleDao } = require('../dao');
-const { Validator } = require('../helpers/validator/Validator');
 const { HashHelper } = require('../helpers/HashHelper');
 const { TokenHelper } = require('../helpers/TokenHelper');
+const { Validator } = require('../helpers/validator/Validator');
 const { UnprocessableEntityError } = require('../helpers/ErrorHelper/customErrors');
 
 class UserService {
@@ -77,7 +78,7 @@ class UserService {
         const customerRole = await this.roleDao.getByProperty('name', 'customer');
 
         // create user instance
-        return this.userDao.create(User.Build()
+        return this.userDao.create(UserBuilder.Build()
             .addEmail(data.email)
             .addPassword(hashedPassword)
             .addRole(customerRole)

@@ -1,5 +1,10 @@
 class Rule {
 
+    /**
+     * regular expression to validate email
+     */
+    static patternEmail = new RegExp(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
+
     static types = ['string', 'number', 'boolean', 'integer'];
 
     /**
@@ -9,17 +14,18 @@ class Rule {
      *      allowed:   any
      *      minlength: number
      *      maxlength: number
-     *      pattern:   string
+     *      pattern:   RegExp
      *      type:      string
      *      min:       number
      *      max:       number
      * }} rule rule parameters
      */
-    constructor({ type, required, min, max, minlength, maxlength, allowed }) {
+    constructor({ type, required, min, max, minlength, maxlength, allowed, pattern }) {
         required !== undefined && (this.required = required);
         minlength !== undefined && (this.minlength = minlength);
         maxlength !== undefined && (this.maxlength = maxlength);
         allowed !== undefined && (this.allowed = allowed);
+        pattern !== undefined && (this.pattern = pattern);
         type !== undefined && (this.type = type);
         min !== undefined && (this.min = min);
         max !== undefined && (this.max = max);
@@ -45,6 +51,17 @@ class Rule {
             throw new TypeError(`Invalid 'type' rule provided`);
         }
         this._type = v;
+    }
+
+    /**
+     * setter for pattern
+     * @param   {string}  v  pattern
+     */
+    set pattern(v) {
+        if (!(v instanceof RegExp)) {
+            throw new TypeError(`Invalid 'pattern' rule provided`);
+        }
+        this._pattern = v;
     }
 
     /**
@@ -131,6 +148,10 @@ class Rule {
 
     get max() {
         return this._max;
+    }
+
+    get pattern() {
+        return this._pattern;
     }
 }
 
