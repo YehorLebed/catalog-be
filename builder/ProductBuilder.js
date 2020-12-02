@@ -91,7 +91,7 @@ class ProductBuilder {
 
     /**
      * add product images
-     * @param   {Image[]}     images  product images
+     * @param   {Image}     images  product images
      * @return  {ProductBuilder}
      */
     addImages(images) {
@@ -100,24 +100,11 @@ class ProductBuilder {
     }
 
     /**
-     * add product image
-     * @param   {Image}     image  product image
-     * @return  {ProductBuilder}
-     */
-    addImage(image) {
-        const images = [...this.product.images];
-        images.push(image);
-        this.product.images = images;
-        return this;
-    }
-
-
-    /**
      * add product createdAt
      * @param   {number}     createdAt  product createdAt
      * @return  {ProductBuilder}
      */
-    addImages(createdAt) {
+    addCreatedAt(createdAt) {
         this.product.createdAt = createdAt;
         return this;
     }

@@ -1,155 +1,97 @@
-const { Client } = require('pg');
+const Jimp = require('jimp');
+const path = require('path');
 const { Image } = require('../models');
-const { Dao } = require('../core/Dao');
-const { ImageBuilder } = require('../builder');
-const { ServerError } = require('../helpers/ErrorHelper/customErrors');
+const { ImageBuilder } = require('../builder/ImageBuilder');
+const { Multer } = require('../utils/Multer');
+const { ServerError } = require('../utils/ErrorHelper/customErrors/ServerError');
 
-class ImageDao extends Dao {
+class ImageDao {
+
     /**
-     * UserDatabaseClient constructor
-     * @param   {Client}  client  client connection
+     * ImageDao constructor
      */
-    constructor(client) {
-        super(client);
+    constructor() {
+        this.multer = Multer.multer;
     }
 
     /**
-     * get image by property and its value
-     * @param   {number}    id category id
+     * save image
+     * @param   {Request}  req  
      * @return  {Promise<Image>}
      */
-    async getById(id) {
+    async save(req) {
         let image = null;
 
-        const sql = `select id, title, path, size from images where id = $1 limit 1`;
-        const values = [id];
-
         try {
-            // fetch data
-            const data = await this.client.query(sql, values);
-            const res = data.rows[0];
+            const original = await this._saveUsingMulter(req);
+            const small = await this._saveCustom(original, Image.SIZE_SMALL, 'small');
+            const medium = await this._saveCustom(original, Image.SIZE_MEDIUM, 'medium');
 
-            if (res) {
-                // create image image
-                image = ImageBuilder.Build()
-                    .addId(res['id'])
-                    .addTitle(res['title'])
-                    .addPath(res['path'])
-                    .addSize(res['size'])
-                    .build();
-            }
+            image = ImageBuilder.Build()
+                .addPathToSmall(small)
+                .addPathToMedium(medium)
+                .addPathToOriginal(original)
+                .build();
         }
         catch (error) {
-            throw new ServerError(`Failed to get image by id from database`);
+            throw new ServerError('Failed to save image');
         }
         return image;
     }
 
     /**
-     * get all images
-     * @param   {number}  page    page number
-     * @param   {number}  amount  amount number
-     * @return  {Promise<Image[]>}
+     * save image using multer
+     * @return  {Promise<string>}
      */
-    async getAll(page, amount) {
-        const images = [];
+    async _saveUsingMulter(req) {
+        return new Promise((resolve, reject) => {
+            this.multer(req, null, error => {
+                if (error) {
+                    reject(error);
+                } else {
+                    // prepare image src
+                    const id = req.params.id;
+                    const imagePath = path.join(Image.DIR_FOR_CLIENT, id, 'original.jpg');
+                    resolve(imagePath);
+                }
+            });
+        })
+    }
 
-        const sql = `select id, title, path, size from images limit $1 offset $2`;
-        const offset = (page - 1) * amount;
-        const values = [amount, offset];
+    /**
+     * process image and save it
+     * @param   {string}            original  path to original
+     * @param   {number}            size      size of height and width
+     * @param   {string}            name      size of height and width
+     * @return  {Promise<string>}             image path from public directory
+     */
+    async _saveCustom(original, size, name) {
+        // prepare image parameters
+        // define image folder name (it is product id)
+        const productId = path.dirname(original).split(path.sep).pop();
+        // generate paths for image
+        const serverImgPath = path.join(Image.DIR, productId, `${name}.jpg`);
+        const clientImgPath = path.join(Image.DIR_FOR_CLIENT, productId, `${name}.jpg`);
 
-        try {
-            const data = await this.client.query(sql, values);
-            const res = data.rows;
+        await Jimp.read(original).then(img => {
+            const imgClone = img.clone();
+            const imgBg = new Jimp(size, size, 'ffffff');
 
-            if (res.length !== 0) {
-                res.forEach((row) => {
-                    // create image image
-                    const image = ImageBuilder.Build()
-                        .addId(row['id'])
-                        .addTitle(row['title'])
-                        .addPath(row['path'])
-                        .addSize(row['size'])
-                        .build();
-
-                    // add image to list
-                    images.push(image);
-                });
+            if (img.getHeight() < img.getWidth()) {
+                imgClone.resize(size, Jimp.AUTO);
+                const y = Math.floor((size - imgClone.getHeight()) / 2);
+                imgBg.blit(imgClone, 0, y);
+            } else {
+                imgClone.resize(Jimp.AUTO, size);
+                const x = Math.floor((size - imgClone.getWidth()) / 2);
+                imgBg.blit(imgClone, x, 0);
             }
-        }
-        catch (error) {
-            throw new ServerError('Failed to get images from database');
-        }
-        return images;
+            imgBg.writeAsync(serverImgPath);
+        });
+
+        return clientImgPath;
     }
 
-    /**
-     * create image in database
-     * @param   {Image}  image  image
-     * @return  {Promise<Image>}
-     */
-    async create(image) {
-        let createdImage = null;
-
-        const sql = `insert into images(title, path, size) values($1, $2, $3) returning id;`
-        const values = [image.title, image.path, image.size];
-
-        try {
-            const data = await this.client.query(sql, values);
-            const res = data.rows[0];
-
-            // expand image with inserted image id
-            createdImage = ImageBuilder.Build()
-                .setImage(image)
-                .addId(res['id'])
-                .build();
-        }
-        catch (error) {
-            throw new ServerError('Failed to create image in database');
-        }
-        return createdImage;
-    }
-
-    /**
-     * update image by property
-     * @param   {Image}           image   image
-     * @param   {string}         name   property name
-     * @param   {number|string}  value  property value
-     * @returns {Promise<number|string>}
-     */
-    async updateProperty(image, name, value) {
-        let updatedProperty = null
-
-        const sql = `update images set ${name} = $1 where id = $2 returning ${name}`;
-        const values = [value, image.id];
-
-        try {
-            const data = await this.client.query(sql, values);
-            const res = data.rows[0];
-            updatedProperty = res[name];
-        }
-        catch (error) {
-            throw new ServerError(`Failed to update image property '${name}' in database`);
-        }
-        return updatedProperty;
-    }
-
-    /**
-     * delete image by id
-     * @param   {number}  id image id
-     * @return  {Promise<void>}
-     */
-    async deleteById(id) {
-        const sql = `delete from images where id = $1`;
-        const values = [id];
-
-        try {
-            await this.client.query(sql, values);
-        }
-        catch (error) {
-            throw new ServerError(`Failed to delete image with id '${id}' from database`);
-        }
-    }
 }
 
 module.exports = { ImageDao };

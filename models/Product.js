@@ -1,21 +1,21 @@
 const { Model } = require('../core/Model');
 const { Image } = require('./Image');
 const { Category } = require('./Category');
-const { Rule } = require('../helpers/validator/Rule');
+const { Rule } = require('../utils/validator/Rule');
 
 class Product extends Model {
     /**
      * Product constructor
      * @param   {number}     id             product id
      * @param   {string}     title          product title
-     * @param   {string}     description    product description
-     * @param   {number}     price          product price
-     * @param   {boolean}    isPromo       is promo product
-     * @param   {Category}   category       product category
-     * @param   {Image[]}    images         product images
-     * @param   {number}     createdAt     product time of creation
+     * @param   {string}         description  product description
+     * @param   {number}         price        product price
+     * @param   {boolean}        isPromo     is promo product
+     * @param   {Category}       category     product category
+     * @param   {Image}  images       product images
+     * @param   {number}         createdAt   product time of creation
      */
-    constructor(id = null, title = null, description = null, price = null, isPromo = null, category = null, images = [], createdAt = null) {
+    constructor(id = null, title = null, description = null, price = null, isPromo = null, category = null, images = new Image(), createdAt = null) {
         super();
         this.id = id;
         this.title = title;

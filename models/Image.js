@@ -1,49 +1,75 @@
 const { Model } = require('../core/Model');
-const { Rule } = require('../helpers/validator/Rule');
 
 class Image extends Model {
+
+    static MAX_SIZE = 10 * 1000 * 1000
+
+    static TYPES_REGEX = /jpeg|jpg/;
+
+    static SIZE_SMALL = 100;
+    static SIZE_MEDIUM = 256;
+
+    static DEFAULT_NAME = 'original.jpg';
+
+    static DIR = path.join(path.dirname(__dirname), 'public', 'images', 'products');
+    static DIR_FOR_CLIENT = path.join('images', 'products');
+
     /**
-     * Image constructor
-     * @param   {number}  id     image id
-     * @param   {string}  title  image title
-     * @param   {string}  path   image path
-     * @param   {string}  size   image size
+     * ProductImage constructor
      */
-    constructor(id = null, title = null, path = null, size = null) {
+    constructor() {
         super();
-        this.id = id;
-        this.title = title;
-        this.path = path;
-        this.size = size;
+        this.small = null;
+        this.medium = null;
+        this.original = null;
     }
 
     /**
-     * getter for rules
-     * @return  {Object.<string, Rule>}
+     * setter for small
+     * @param   {string}  path  image path
      */
-    static get rules() {
-        return {
-            id: new Rule({
-                type: 'integer',
-                required: false,
-                min: 0,
-            }),
-            title: new Rule({
-                type: 'string',
-                required: true,
-                minlength: 3,
-                maxlength: 255,
-            }),
-            path: new Rule({
-                type: 'string',
-                required: true,
-            }),
-            size: new Rule({
-                type: 'string',
-                required: true,
-                allowed: ['small', 'medium', 'original']
-            }),
-        }
+    set small(path) {
+        this._small = path;
+    }
+
+    /**
+     * setter for medium
+     * @param   {string}  path  image path
+     */
+    set medium(path) {
+        this._medium = path;
+    }
+
+    /**
+     * setter for original
+     * @param   {string}  path  image path
+     */
+    set original(path) {
+        this._original = path;
+    }
+
+    /**
+     * getter for small
+     * @return   {string}
+     */
+    get small(path) {
+        return this._small;
+    }
+
+    /**
+     * getter for medium
+     * @return   {string}
+     */
+    get medium(path) {
+        return this._medium;
+    }
+
+    /**
+     * getter for original
+     * @return   {string}
+     */
+    get original(path) {
+        return this._original;
     }
 }
 

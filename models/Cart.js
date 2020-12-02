@@ -1,6 +1,6 @@
 const { Model } = require('../core/Model');
 const { CartProduct } = require('./CartProduct');
-const { Rule } = require('../helpers/validator/Rule');
+const { Rule } = require('../utils/validator/Rule');
 
 class Cart extends Model {
     /**

@@ -1,4 +1,4 @@
-const { Rule } = require('../helpers/validator/Rule');
+const { Rule } = require('../utils/validator/Rule');
 const { Model } = require('../core/Model');
 const { Role } = require('./');
 
