@@ -7,7 +7,7 @@ class ProductController {
      * ProductService constructor
      * @param   {ProductService}  productService  product service
      */
-    constructor(productService) {
+    constructor(productService, imageService) {
         this.productService = productService;
     }
 
@@ -16,6 +16,7 @@ class ProductController {
      * @param {Request}   req   request
      * @param {Response}  res   response
      * @param {Function}  next  next
+     * @returns {Response}
      */
     async getAll(req, res, next) {
         try {
@@ -27,6 +28,25 @@ class ProductController {
             return errorHelper.processResponse(res);
         }
     }
+
+    /**
+     * delete product instance
+     * @param {Request}   req   request
+     * @param {Response}  res   response
+     * @param {Function}  next  next
+     * @returns {Response}
+     */
+    async delete(req, res, next) {
+        try {
+            const id = +req.params.id
+            await this.productService.delete(id);
+            return res.sendStatus(200);
+        }
+        catch (error) {
+            const errorHelper = new ErrorHelper(error);
+            return errorHelper.processResponse(res);
+        }
+    }
 }
 
-module.exports = { ProductService };
+module.exports = { ProductController };

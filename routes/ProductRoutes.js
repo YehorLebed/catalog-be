@@ -24,10 +24,10 @@ const router = new Router();
 //     return controller.update(req, res, next);
 // });
 
-// router.delete('/:id', async (req, res, next) => {
-//     const controller = await ControllerFactory.createController('product');
-//     return controller.delete(req, res, next);
-// });
+router.delete('/:id', async (req, res, next) => {
+    const controller = await ControllerFactory.createProductController();
+    return controller.delete(req, res, next);
+});
 
 router.use(imageRouter);
 

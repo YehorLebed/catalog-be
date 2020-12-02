@@ -4,6 +4,7 @@ const { Image } = require('../models');
 const { ImageBuilder } = require('../builder/ImageBuilder');
 const { Multer } = require('../utils/Multer');
 const { ServerError } = require('../utils/ErrorHelper/customErrors/ServerError');
+const { FsHelper } = require('../utils/FsHelper');
 
 class ImageDao {
 
@@ -38,6 +39,32 @@ class ImageDao {
             throw new ServerError('Failed to save image');
         }
         return image;
+    }
+
+    /**
+     * delete images by product id
+     * @param   {number}  productId
+     */
+    async delete(productId) {
+        try {
+            // define product images folder
+            const dir = path.join(Image.DIR, productId.toString());
+
+            if ((await FsHelper.dirExists(dir))) {
+
+                const files = await FsHelper.readDir(dir);
+                // delete all files inside directory
+                await Promise.all(files.map(file => {
+                    const filePath = path.join(dir, file);
+                    return FsHelper.deleteFile(filePath);
+                }));
+                // delete directory
+                await FsHelper.deleteDir(dir);
+            }
+        } catch (error) {
+            console.log(error);
+            throw new ServerError('Failed to delete images');
+        }
     }
 
     /**

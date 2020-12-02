@@ -1,5 +1,5 @@
 const { ServiceFactory } = require('./ServiceFactory');
-const { UserController, ImageController } = require('../controllers');
+const { UserController, ImageController, ProductController } = require('../controllers');
 
 class ControllerFactory {
 
@@ -8,12 +8,12 @@ class ControllerFactory {
      * @return  {string[]}
      */
     static get types() {
-        return ['user', 'image'];
+        return ['user', 'image', 'product'];
     }
 
     /**
      * get controller
-     * @param   {'user'|'image'}          type  controller type
+     * @param   {'user'|'image'|'product'}          type  controller type
      * @return  {Promise<UserController|ImageController>}
      */
     static async createController(type) {
@@ -30,6 +30,11 @@ class ControllerFactory {
         else if (type === 'image') {
             return new ImageController(
                 await ServiceFactory.createService('image')
+            );
+        }
+        else if (type === 'product') {
+            return new ProductController(
+                await ServiceFactory.createService('product')
             );
         }
 
@@ -50,6 +55,14 @@ class ControllerFactory {
      */
     static createImageController() {
         return ControllerFactory.createController('image');
+    }
+
+    /**
+     * create product controller
+     * @return  {Promise<ProductController>}
+     */
+    static createProductController() {
+        return ControllerFactory.createController('product');
     }
 
 }

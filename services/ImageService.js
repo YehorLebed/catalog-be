@@ -22,6 +22,15 @@ class ImageService {
     save(req) {
         return this.imageDao.save(req);
     }
+
+    /**
+     * delete images by product id
+     * @param   {number}  productId
+     * @return  {void}
+     */
+    async delete(productId) {
+        await this.imageDao.delete(productId);
+    }
 }
 
 module.exports = { ImageService };
