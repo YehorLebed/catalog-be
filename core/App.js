@@ -1,6 +1,6 @@
 const express = require('express');
 const { Database } = require('./Database');
-const { Config } = require('../helpers/Config');
+const { Config } = require('../utils/Config');
 
 class App {
 

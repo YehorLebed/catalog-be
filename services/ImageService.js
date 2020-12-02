@@ -2,7 +2,7 @@ const path = require('path');
 const { Image } = require('../models');
 const { ImageDao } = require('../dao');
 const { ImageBuilder } = require('../builder')
-const { FsHelper } = require('../helpers/FsHelper');
+const { FsHelper } = require('../utils/FsHelper');
 
 class ImageService {
 

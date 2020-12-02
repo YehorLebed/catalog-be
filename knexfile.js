@@ -1,5 +1,5 @@
 const path = require('path');
-const { Config } = require('./helpers/Config');
+const { Config } = require('./utils/Config');
 
 // setup configuration
 const config = new Config();

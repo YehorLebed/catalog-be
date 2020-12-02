@@ -1,6 +1,6 @@
 const { User } = require('../../models');
 const { RenderSeed } = require('../utils/RenderSeed');
-const { HashHelper } = require('../../helpers/HashHelper');
+const { HashHelper } = require('../../utils/HashHelper');
 
 const prepareUsers = async () => [
     new User(null, 'ivan@gmail.com', await HashHelper.hashPassword('ivan'), 1),

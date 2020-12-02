@@ -1,10 +1,10 @@
 const { User } = require('../models');
 const { UserBuilder } = require('../builder');
 const { UserDao, RoleDao } = require('../dao');
-const { HashHelper } = require('../helpers/HashHelper');
-const { TokenHelper } = require('../helpers/TokenHelper');
-const { Validator } = require('../helpers/validator/Validator');
-const { UnprocessableEntityError } = require('../helpers/ErrorHelper/customErrors');
+const { HashHelper } = require('../utils/HashHelper');
+const { TokenHelper } = require('../utils/TokenHelper');
+const { Validator } = require('../utils/validator/Validator');
+const { UnprocessableEntityError } = require('../utils/ErrorHelper/customErrors');
 
 class UserService {
 

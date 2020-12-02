@@ -58,6 +58,14 @@ class ImageBuilder {
     }
 
     /**
+     * build image
+     * @returns {Image}
+     */
+    build() {
+        return this.image
+    }
+
+    /**
      * getter for image
      * @return  {Image}
      */

@@ -1,5 +1,5 @@
 const { Dao } = require('../core/Dao');
-const { UserDao, RoleDao } = require('../dao/index');
+const { UserDao, RoleDao, ImageDao } = require('../dao/index');
 const { Database } = require('../core/Database');
 
 class DaoFactory {
@@ -9,17 +9,21 @@ class DaoFactory {
      * @return  {string[]}
      */
     static get types() {
-        return ['user', 'role'];
+        return ['user', 'role', 'image'];
     }
 
     /**
      * get dao
-     * @param   {string}  type  dao type
+     * @param   {'user', 'role', 'image'}  type  dao type
      * @return  {Promise<UserDao|RoleDao>}
      */
     static async createDao(type) {
         if (!type || typeof type !== 'string' || !DaoFactory.types.includes(type)) {
             return null;
+        }
+
+        if (type === 'image') {
+            return new ImageDao();
         }
 
         // create database connection 

@@ -2,7 +2,7 @@ const { Client } = require('pg');
 const { Category } = require('../models');
 const { Dao } = require('../core/Dao');
 const { CategoryBuilder } = require('../builder');
-const { ServerError } = require('../helpers/ErrorHelper/customErrors');
+const { ServerError } = require('../utils/ErrorHelper/customErrors');
 
 class CategoryDao extends Dao {
     /**

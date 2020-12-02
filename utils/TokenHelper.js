@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { User } = require('../models');
-const { UnprocessableEntityError } = require('../helpers/ErrorHelper/customErrors');
+const { UnprocessableEntityError } = require('../utils/ErrorHelper/customErrors');
 
 class TokenHelper {
     static secret = 'wolf'

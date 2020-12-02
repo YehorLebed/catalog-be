@@ -1,5 +1,5 @@
 const { App } = require('./core/App');
-const { Config } = require('./helpers/Config');
+const { Config } = require('./utils/Config');
 
 try {
     const config = new Config();

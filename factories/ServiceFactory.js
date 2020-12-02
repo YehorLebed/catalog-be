@@ -1,5 +1,5 @@
 const { DaoFactory } = require('./DaoFactory');
-const { UserService } = require('../services');
+const { UserService, ImageService } = require('../services');
 
 class ServiceFactory {
 
@@ -8,12 +8,12 @@ class ServiceFactory {
      * @return  {string[]}
      */
     static get types() {
-        return ['user'];
+        return ['user', 'image'];
     }
 
     /**
      * create service
-     * @param   {string}  type  dao type
+     * @param   {'image'|'image'}  type  dao type
      * @return  {Promise<UserService>}
      */
     static async createService(type) {
@@ -28,6 +28,10 @@ class ServiceFactory {
                     DaoFactory.createDao('user'),
                     DaoFactory.createDao('role'),
                 ]))
+            );
+        } else if (type === 'image') {
+            return new ImageService(
+                await DaoFactory.createDao('image')
             );
         }
 

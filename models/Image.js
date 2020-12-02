@@ -1,3 +1,4 @@
+const path = require('path');
 const { Model } = require('../core/Model');
 
 class Image extends Model {
@@ -9,7 +10,7 @@ class Image extends Model {
     static SIZE_SMALL = 100;
     static SIZE_MEDIUM = 256;
 
-    static DEFAULT_NAME = 'original.jpg';
+    static DEFAULT_NAME = 'original';
 
     static DIR = path.join(path.dirname(__dirname), 'public', 'images', 'products');
     static DIR_FOR_CLIENT = path.join('images', 'products');
@@ -52,7 +53,7 @@ class Image extends Model {
      * getter for small
      * @return   {string}
      */
-    get small(path) {
+    get small() {
         return this._small;
     }
 
@@ -60,7 +61,7 @@ class Image extends Model {
      * getter for medium
      * @return   {string}
      */
-    get medium(path) {
+    get medium() {
         return this._medium;
     }
 
@@ -68,7 +69,7 @@ class Image extends Model {
      * getter for original
      * @return   {string}
      */
-    get original(path) {
+    get original() {
         return this._original;
     }
 }

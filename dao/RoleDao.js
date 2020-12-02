@@ -2,7 +2,7 @@ const { Client } = require('pg');
 const { Role } = require('../models');
 const { Dao } = require('../core/Dao');
 const { RoleBuilder } = require('../builder');
-const { ServerError } = require('../helpers/ErrorHelper/customErrors');
+const { ServerError } = require('../utils/ErrorHelper/customErrors');
 
 class RoleDao extends Dao {
     /**

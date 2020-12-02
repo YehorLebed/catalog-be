@@ -1,6 +1,7 @@
 const path = require('path');
 const multer = require('multer');
 const { Image } = require('../models');
+const { FsHelper } = require('../utils/FsHelper');
 
 class Multer {
 
@@ -10,13 +11,18 @@ class Multer {
      */
     static get _multerStorage() {
         return multer.diskStorage({
-            destination: function (req, file, cb) {
+            destination: async function (req, file, cb) {
                 const id = req.params.id;
                 const savePath = path.join(Image.DIR, id);
+
+                if (!(await FsHelper.dirExists(savePath))) {
+                    await FsHelper.createDir(savePath);
+                }
+
                 cb(null, savePath);
             },
             filename: function (req, file, cb) {
-                cb(null, Image.DEFAULT_NAME)
+                cb(null, `${Image.DEFAULT_NAME}.jpg`)
             },
         })
     }
@@ -32,11 +38,10 @@ class Multer {
     /**
      * getter for multer Filter config
      *
-     * @param   {[type]}  req   [req description]
-     * @param   {[type]}  file  [file description]
-     * @param   {[type]}  cb    [cb description]
-     *
-     * @return  {[type]}        [return description]
+     * @param   {Request}   req   request
+     * @param   {File}      file  file 
+     * @param   {Function}  cb    callback
+     * @return  {void}
      */
     static _multerFilter(req, file, cb) {
         const extention = path.extname(file.originalname).toLowerCase();
@@ -54,9 +59,9 @@ class Multer {
 
     static get multer() {
         return multer({
-            storage: ImageDao._multerStorage,
-            limits: ImageDao._multerLimits,
-            fileFilter: ImageDao._multerFilter
+            storage: Multer._multerStorage,
+            limits: Multer._multerLimits,
+            fileFilter: Multer._multerFilter
         }).single('image');
     }
 }

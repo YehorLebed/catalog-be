@@ -1,5 +1,5 @@
 const { Client } = require('pg');
-const { ServerError } = require('../helpers/ErrorHelper/customErrors');
+const { ServerError } = require('../utils/ErrorHelper/customErrors');
 
 class Database {
     static _instance = null;

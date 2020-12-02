@@ -1,4 +1,4 @@
-const { ErrorHelper } = require('../helpers/ErrorHelper/ErrorHelper');
+const { ErrorHelper } = require('../utils/ErrorHelper/ErrorHelper');
 const { ProductService } = require('../services');
 
 class ProductController {

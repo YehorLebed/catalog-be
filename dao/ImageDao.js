@@ -34,6 +34,7 @@ class ImageDao {
                 .build();
         }
         catch (error) {
+            console.error(error);
             throw new ServerError('Failed to save image');
         }
         return image;
@@ -41,6 +42,7 @@ class ImageDao {
 
     /**
      * save image using multer
+     * @param   {Request}  req
      * @return  {Promise<string>}
      */
     async _saveUsingMulter(req) {
@@ -72,8 +74,9 @@ class ImageDao {
         // generate paths for image
         const serverImgPath = path.join(Image.DIR, productId, `${name}.jpg`);
         const clientImgPath = path.join(Image.DIR_FOR_CLIENT, productId, `${name}.jpg`);
+        const serverOriginalImgPath = path.join(Image.DIR, productId, `${Image.DEFAULT_NAME}.jpg`);
 
-        await Jimp.read(original).then(img => {
+        await Jimp.read(serverOriginalImgPath).then(img => {
             const imgClone = img.clone();
             const imgBg = new Jimp(size, size, 'ffffff');
 
