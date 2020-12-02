@@ -80,7 +80,7 @@ class ImageDao {
                 } else {
                     // prepare image src
                     const id = req.params.id;
-                    const imagePath = path.join(Image.DIR_FOR_CLIENT, id, 'original.jpg');
+                    const imagePath = path.join(Image.DIR_FOR_CLIENT, id, 'original.jpg')
                     resolve(imagePath);
                 }
             });

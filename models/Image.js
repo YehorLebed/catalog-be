@@ -5,7 +5,7 @@ class Image extends Model {
 
     static MAX_SIZE = 10 * 1000 * 1000
 
-    static TYPES_REGEX = /jpeg|jpg/;
+    static TYPES_REGEX = /jpeg|jpg|png/;
 
     static SIZE_SMALL = 100;
     static SIZE_MEDIUM = 256;
