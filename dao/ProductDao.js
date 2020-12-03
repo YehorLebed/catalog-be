@@ -22,12 +22,10 @@ class ProductDao extends Dao {
         let product = null;
 
         const sql = `select 
-        id, title, description, price, is_promo, created_at,
+        id, title, description, price, image, is_promo, created_at,
         c.id as c_id, c.name as c_name
-        i.id as i_id, i.title as i_title, i.path as i_path, i.size as i_size
         from products p
         right join categories c on (c.id = p.id)
-        right join images i on (i.id = p.id)
         group by p.id
         where id = $1`;
         const values = [id];
@@ -38,18 +36,13 @@ class ProductDao extends Dao {
             const res = data.rows;
 
             if (res.length !== 0) {
-                const images = [];
-                res.forEach(row => {
-                    // create image
-                    const image = ImageBuilder.Build()
-                        .addId(row['i_id'])
-                        .addTitle(row['i_title'])
-                        .addPath(row['i_path'])
-                        .addSize(row['i_size'])
-                        .build();
-                    images.push(image);
-                });
                 const row = res[0];
+                // create image
+                const image = ImageBuilder.Build()
+                    .addPathToSmall(row['image'].small)
+                    .addPathToMedium(row['image'].medium)
+                    .addPathToOriginal(row['image'].original)
+                    .build();
 
                 // create category
                 const category = CategoryBuilder.Build()
@@ -63,7 +56,7 @@ class ProductDao extends Dao {
                     .addTitle(row['title'])
                     .addDescription(row['description'])
                     .addIsPromo(row['is_promo'])
-                    .addImages(images)
+                    .addImage(image)
                     .addCategory(category)
                     .addCreatedAt(row['created_at'])
                     .build();
@@ -77,20 +70,23 @@ class ProductDao extends Dao {
 
     /**
      * get all products
-     * @param   {number}  page    page number
-     * @param   {number}  amount  amount number
+     * @typedef {Object} Params
+     * @property {number} page       page
+     * @property {number} amount     amount
+     * @property {number} [minPrice]   min price
+     * @property {number} [maxPrice]   max price
+     * @property {number} [categoryId] category id
+     * @property {string} [search]     search string
+     * @param  {Params} params
      * @return  {Promise<Product[]>}
      */
-    async getAll(page, amount) {
+    async getAll({ page, amount }) {
         const products = [];
-
         const sql = `select distinct
-        id, title, description, price, is_promo, created_at,
+        id, title, description, price, is_promo, image, created_at,
         c.id as c_id, c.name as c_name
-        i.id as i_id, i.title as i_title, i.path as i_path, i.size as i_size
         from products p
         right join categories c on (c.id = p.id)
-        right join images i on (i.id = p.id)
         group by p.id
         limit $1 offset $2`;
         const offset = (page - 1) * amount;
@@ -105,10 +101,9 @@ class ProductDao extends Dao {
                 res.forEach(row => {
                     // create image
                     const image = ImageBuilder.Build()
-                        .addId(row['i_id'])
-                        .addTitle(row['i_title'])
-                        .addPath(row['i_path'])
-                        .addSize(row['i_size'])
+                        .addPathToSmall(row['image'].small)
+                        .addPathToMedium(row['image'].medium)
+                        .addPathToOriginal(row['image'].original)
                         .build();
 
                     // create category
@@ -147,13 +142,14 @@ class ProductDao extends Dao {
         let createdProduct = null;
 
         const sql = `insert into 
-        products(title, description, price, is_promo, category_id, created_at) 
-        values($1, $2, $3, $4, $5, $6) returning id;`
+        products(title, description, price, is_promo, image, category_id, created_at) 
+        values($1, $2, $3, $4, $5, $6, $7) returning id;`
         const values = [
             product.title,
             product.description,
             product.price,
             product.isPromo,
+            JSON.stringify(product.image),
             product.category.id,
             product.createdAt,
         ];
@@ -182,18 +178,44 @@ class ProductDao extends Dao {
      * @returns {Promise<number|string>}
      */
     async updateProperty(product, name, value) {
-        let updatedProperty = null
-
         const sql = `update products set ${name} = $1 where id = $2 returning ${name}`;
-        const values = [value, product.id];
+        updatedValue = name !== 'image' ? value : JSON.stringify(value)
+        const values = [updatedValue, product.id];
 
         try {
-            const data = await this.client.query(sql, values);
-            const res = data.rows[0];
-            updatedProperty = res[name];
+            await this.client.query(sql, values);
         }
         catch (error) {
             throw new ServerError(`Failed to update product property '${name}' in database`);
+        }
+        return value;
+    }
+
+    /**
+     * update product
+     * @param   {Product}  product  product
+     * @return  {Promise<void>}           [return description]
+     */
+    async update(product) {
+        const sql = `update products 
+        set title=$2, description=$3, price=$4, image=$5 is_promo=$6, category_id=$7, created_at=$8
+        where id = $1`;
+        const values = [
+            product.id,
+            product.title,
+            product.description,
+            product.price,
+            JSON.stringify(product.image),
+            product.isPromo,
+            product.category.id,
+            product.createdAt,
+        ];
+
+        try {
+            await this.client.query(sql, values);
+        }
+        catch (error) {
+            throw new ServerError(`Failed to update product in database`);
         }
         return updatedProperty;
     }

@@ -1,18 +1,18 @@
 const { ErrorHelper } = require('../utils/ErrorHelper/ErrorHelper');
-const { ProductService } = require('../services');
+const { CategoryService } = require('../services');
 
-class ProductController {
+class CategoryController {
 
     /**
-     * ProductService constructor
-     * @param   {ProductService}  productService  product service
+     * CategoryService constructor
+     * @param   {CategoryService}  categoryService  category service
      */
-    constructor(productService) {
-        this.productService = productService;
+    constructor(categoryService) {
+        this.categoryService = categoryService;
     }
 
     /**
-     * get all products by query parameters
+     * get all categorys by query parameters
      * @param {Request}   req   request
      * @param {Response}  res   response
      * @param {Function}  next  next
@@ -21,8 +21,8 @@ class ProductController {
     async getAll(req, res, next) {
         try {
             const params = req.query;
-            const result = await this.productService.getAll(params);
-            return res.status(200).json({ products: result });
+            const result = await this.categoryService.getAll(params);
+            return res.status(200).json({ categorys: result });
         }
         catch (error) {
             const errorHelper = new ErrorHelper(error);
@@ -31,7 +31,7 @@ class ProductController {
     }
 
     /**
-     * get product by id
+     * get category by id
      * @param {Request}   req   request
      * @param {Response}  res   response
      * @param {Function}  next  next
@@ -40,7 +40,7 @@ class ProductController {
     async getById(req, res, next) {
         try {
             const id = +req.params.id;
-            const result = await this.productService.getById(id);
+            const result = await this.categoryService.getById(id);
             return res.status(200).json(result);
         }
         catch (error) {
@@ -50,7 +50,7 @@ class ProductController {
     }
 
     /**
-     * create product
+     * create category
      * @param {Request}   req   request
      * @param {Response}  res   response
      * @param {Function}  next  next
@@ -59,7 +59,7 @@ class ProductController {
     async create(req, res, next) {
         try {
             const data = req.body;
-            const result = await this.productService.create(data);
+            const result = await this.categoryService.create(data);
             return res.status(200).json(result);
         }
         catch (error) {
@@ -69,7 +69,7 @@ class ProductController {
     }
 
     /**
-     * update product
+     * update category
      * @param {Request}   req   request
      * @param {Response}  res   response
      * @param {Function}  next  next
@@ -79,7 +79,7 @@ class ProductController {
         try {
             const id = +req.params.id;
             const data = req.body;
-            const result = await this.productService.update(id, data);
+            const result = await this.categoryService.update(id, data);
             return res.status(200).json(result);
         }
         catch (error) {
@@ -89,7 +89,7 @@ class ProductController {
     }
 
     /**
-     * delete product instance
+     * delete category instance
      * @param {Request}   req   request
      * @param {Response}  res   response
      * @param {Function}  next  next
@@ -98,7 +98,7 @@ class ProductController {
     async delete(req, res, next) {
         try {
             const id = +req.params.id
-            await this.productService.delete(id);
+            await this.categoryService.delete(id);
             return res.sendStatus(200);
         }
         catch (error) {
@@ -108,4 +108,4 @@ class ProductController {
     }
 }
 
-module.exports = { ProductController };
+module.exports = { CategoryController };

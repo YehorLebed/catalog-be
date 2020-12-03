@@ -21,7 +21,7 @@ class CategoryDao extends Dao {
     async getById(id) {
         let category = null;
 
-        const sql = `select id, name, parent_id from categories where id = $1 limit 1`;
+        const sql = `select id, title, parent_id from categories where id = $1 limit 1`;
         const values = [id];
 
         try {
@@ -38,7 +38,7 @@ class CategoryDao extends Dao {
                 // create category
                 category = CategoryBuilder.Build()
                     .addId(res['id'])
-                    .addTitle(res['name'])
+                    .addTitle(res['title'])
                     .addParent(parent)
                     .build();
             }
@@ -51,32 +51,40 @@ class CategoryDao extends Dao {
 
     /**
      * get all categories
-     * @param   {number}  page    page number
-     * @param   {number}  amount  amount number
+     * @typedef  {Object} Params
+     * @property {number} page
+     * @property {number} amoun
+     * @property {number} parentId
+     * 
+     * @param   {Params} params
      * @return  {Promise<Category[]>}
      */
-    async getAllParent(page, amount) {
+    async getAll({ page, amount, parentId }) {
         const categories = [];
 
-        const sql = `select 
-        id, name 
+        const sql = `select id, title, parent_id
         from categories 
-        where parent_id is null 
+        where parent_id ${parentId ? '= $3' : 'is null'}
         limit $1 offset $2`;
         const offset = (page - 1) * amount;
         const values = [amount, offset];
+        if (parentId) values.push(parentId);
 
         try {
             const data = await this.client.query(sql, values);
             const res = data.rows;
+
+            const parent = !parentId ? null : CategoryBuilder.Build()
+                .addId(parentId)
+                .build();
 
             if (res.length !== 0) {
                 res.forEach((row) => {
                     // create category category
                     const category = CategoryBuilder.Build()
                         .addId(row['id'])
-                        .addTitle(row['name'])
-                        .addParent(null)
+                        .addTitle(row['title'])
+                        .addParent(parent)
                         .build();
 
                     // add category to list
@@ -98,7 +106,7 @@ class CategoryDao extends Dao {
     async create(category) {
         let createdCategory = null;
 
-        const sql = `insert into categories(name, parent) values($1, $2) returning id;`
+        const sql = `insert into categories(title, parent_id) values($1, $2) returning id;`
         const values = [category.name, category.parent];
 
         try {
@@ -120,25 +128,56 @@ class CategoryDao extends Dao {
     /**
      * update category by property
      * @param   {Category}           category   category
-     * @param   {'name'|'parent_id'}         name   property name
-     * @param   {number|string}  value  property value
-     * @returns {Promise<number|string>}
+     * @returns {Promise<void>}
+     */
+    async update(category) {
+        const sql = `update categories set title = $1, parent_id = $2 where id = $2`;
+        const values = [category.title, category.parent.id, category.id];
+
+        try {
+            await this.client.query(sql, values);
+        }
+        catch (error) {
+            throw new ServerError(`Failed to update category in database`);
+        }
+    }
+
+    /**
+     * update category by property
+     * @param   {Category}            category   category
+     * @param   {'parent_id'|'title'} name       name
+     * @param   {string|number}       value      value
+     * @returns {Promise<void>}
      */
     async updateProperty(category, name, value) {
-        let updatedProperty = null
-
-        const sql = `update categories set ${name} = $1 where id = $2 returning ${name}`;
+        const sql = `update categories set ${name} = $1, where id = $2`;
         const values = [value, category.id];
 
         try {
-            const data = await this.client.query(sql, values);
-            const res = data.rows[0];
-            updatedProperty = res[name];
+            await this.client.query(sql, values);
         }
         catch (error) {
-            throw new ServerError(`Failed to update category property '${name}' in database`);
+            throw new ServerError(`Failed to update category prodperty ${name} in database`);
         }
-        return updatedProperty;
+
+        return value;
+    }
+
+    /**
+     * update category by property
+     * @param   {Category}           category   category
+     * @returns {Promise<void>}
+     */
+    async update(category) {
+        const sql = `update categories set title = $1, parent_id = $2 where id = $2`;
+        const values = [category.title, category.parent.id, category.id];
+
+        try {
+            await this.client.query(sql, values);
+        }
+        catch (error) {
+            throw new ServerError(`Failed to update category in database`);
+        }
     }
 
     /**

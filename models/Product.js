@@ -12,10 +12,10 @@ class Product extends Model {
      * @param   {number}         price        product price
      * @param   {boolean}        isPromo     is promo product
      * @param   {Category}       category     product category
-     * @param   {Image}  images       product images
+     * @param   {Image}          image       product image
      * @param   {number}         createdAt   product time of creation
      */
-    constructor(id = null, title = null, description = null, price = null, isPromo = null, category = null, images = new Image(), createdAt = null) {
+    constructor(id = null, title = null, description = null, price = null, isPromo = null, category = null, image = new Image(), createdAt = null) {
         super();
         this.id = id;
         this.title = title;
@@ -23,7 +23,7 @@ class Product extends Model {
         this.price = price;
         this.isPromo = isPromo;
         this.category = category;
-        this.images = images
+        this.image = image
         this.createdAt = createdAt;
     }
 
@@ -33,11 +33,6 @@ class Product extends Model {
      */
     static get rules() {
         return {
-            id: new Rule({
-                type: 'integer',
-                required: false,
-                min: 0,
-            }),
             title: new Rule({
                 type: 'string',
                 required: true,
@@ -59,11 +54,6 @@ class Product extends Model {
             isPromo: new Rule({
                 type: 'boolean',
                 required: true,
-            }),
-            createdAt: new Rule({
-                type: 'integer',
-                required: true,
-                min: 0,
             }),
         }
     }

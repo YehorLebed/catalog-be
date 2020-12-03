@@ -91,11 +91,11 @@ class ProductBuilder {
 
     /**
      * add product images
-     * @param   {Image}     images  product images
+     * @param   {Image}     image  product images
      * @return  {ProductBuilder}
      */
-    addImages(images) {
-        this.product.images = images;
+    addImage(images) {
+        this.product.image = image;
         return this;
     }
 

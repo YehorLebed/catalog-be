@@ -1,5 +1,5 @@
 const { Router } = require('express');
-const { ControllerFactory } = require('../factories');
+const { ControllerFactory } = require('../../factories');
 
 const router = new Router();
 
@@ -8,4 +8,4 @@ router.post('/:id/images/', async (req, res, next) => {
     return controller.save(req, res, next);
 });
 
-module.exports = { imageRouter: router };
+module.exports = { adminImageRouter: router };

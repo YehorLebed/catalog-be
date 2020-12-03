@@ -8,10 +8,10 @@ class Category extends Model {
      * @param   {string}    title           category title
      * @param   {Category}  parent  parent category id
      */
-    constructor(id, name, parent) {
+    constructor(id, title, parent) {
         super();
         this.id = id;
-        this.name = name;
+        this.title = title;
         this.parent = parent;
     }
 
@@ -26,7 +26,7 @@ class Category extends Model {
                 required: false,
                 min: 0,
             }),
-            name: new Rule({
+            title: new Rule({
                 type: 'string',
                 required: true,
                 minlength: 3,

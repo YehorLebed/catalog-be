@@ -1,5 +1,5 @@
 const { DaoFactory } = require('./DaoFactory');
-const { UserService, ImageService, ProductService } = require('../services');
+const { UserService, ImageService, ProductService, CategoryService } = require('../services');
 
 class ServiceFactory {
 
@@ -8,13 +8,13 @@ class ServiceFactory {
      * @return  {string[]}
      */
     static get types() {
-        return ['user', 'image', 'product'];
+        return ['user', 'image', 'product', 'category'];
     }
 
     /**
      * create service
-     * @param   {'image'|'product'|'user'}  type  dao type
-     * @return  {Promise<UserService|ImageService|ProductService>}
+     * @param   {'image'|'product'|'user'|'category'}  type  dao type
+     * @return  {Promise<UserService|ImageService|ProductService|CategoryService>}
      */
     static async createService(type) {
         if (!type || typeof type !== 'string' || !ServiceFactory.types.includes(type)) {
@@ -40,7 +40,13 @@ class ServiceFactory {
                 ...(await Promise.all([
                     DaoFactory.createDao('product'),
                     DaoFactory.createDao('image'),
+                    DaoFactory.createDao('category'),
                 ]))
+            );
+        }
+        else if (type === 'category') {
+            return new CategoryService(
+                await DaoFactory.createDao('category')
             );
         }
 
