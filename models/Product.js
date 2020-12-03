@@ -8,12 +8,12 @@ class Product extends Model {
      * Product constructor
      * @param   {number}     id             product id
      * @param   {string}     title          product title
-     * @param   {string}         description  product description
-     * @param   {number}         price        product price
-     * @param   {boolean}        isPromo     is promo product
-     * @param   {Category}       category     product category
-     * @param   {Image}          image       product image
-     * @param   {number}         createdAt   product time of creation
+     * @param   {string}     description  product description
+     * @param   {number}     price        product price
+     * @param   {boolean}    isPromo     is promo product
+     * @param   {Category}   category     product category
+     * @param   {Image}      image       product image
+     * @param   {number}     createdAt   product time of creation
      */
     constructor(id = null, title = null, description = null, price = null, isPromo = null, category = null, image = new Image(), createdAt = null) {
         super();
@@ -25,6 +25,31 @@ class Product extends Model {
         this.category = category;
         this.image = image
         this.createdAt = createdAt;
+    }
+
+    /**
+     * getter for tableName
+     * @return  {string}
+     */
+    static get tableName() {
+        return 'products';
+    }
+
+    /**
+     * get model as database schema representation
+     * @return  {Object.<string, any>}
+     */
+    getAttributes() {
+        return {
+            'id': this.id,
+            'title': this.title,
+            'description': this.description,
+            'price': this.price,
+            'is_promo': this.isPromo,
+            'category_id': this.category.id,
+            'image': JSON.stringify(this.image),
+            'created_at': this.createdAt,
+        }
     }
 
     /**
@@ -53,6 +78,9 @@ class Product extends Model {
             }),
             isPromo: new Rule({
                 type: 'boolean',
+                required: true,
+            }),
+            category: new Rule({
                 required: true,
             }),
         }

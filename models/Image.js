@@ -1,7 +1,6 @@
 const path = require('path');
-const { Model } = require('../core/Model');
 
-class Image extends Model {
+class Image {
 
     static MAX_SIZE = 10 * 1000 * 1000
 
@@ -17,60 +16,18 @@ class Image extends Model {
 
     /**
      * ProductImage constructor
+     * @param {string} small
+     * @param {string} medium
+     * @param {string} original
      */
-    constructor() {
-        super();
-        this.small = null;
-        this.medium = null;
-        this.original = null;
-    }
-
-    /**
-     * setter for small
-     * @param   {string}  path  image path
-     */
-    set small(path) {
-        this._small = path;
-    }
-
-    /**
-     * setter for medium
-     * @param   {string}  path  image path
-     */
-    set medium(path) {
-        this._medium = path;
-    }
-
-    /**
-     * setter for original
-     * @param   {string}  path  image path
-     */
-    set original(path) {
-        this._original = path;
-    }
-
-    /**
-     * getter for small
-     * @return   {string}
-     */
-    get small() {
-        return this._small;
-    }
-
-    /**
-     * getter for medium
-     * @return   {string}
-     */
-    get medium() {
-        return this._medium;
-    }
-
-    /**
-     * getter for original
-     * @return   {string}
-     */
-    get original() {
-        return this._original;
+    constructor(
+        small = path.join(Image.DIR_FOR_CLIENT, '0', 'medium.jpg'),
+        medium = path.join(Image.DIR_FOR_CLIENT, '0', 'small.jpg'),
+        original = path.join(Image.DIR_FOR_CLIENT, '0', 'original.jpg')
+    ) {
+        this.small = small;
+        this.medium = medium;
+        this.original = original;
     }
 }
 

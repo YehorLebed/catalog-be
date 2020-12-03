@@ -1,10 +1,11 @@
+const moment = require('moment');
 const { ProductBuilder } = require('../builder/ProductBuilder');
 const { ProductDao, ImageDao, CategoryDao } = require('../dao');
 const { Product } = require('../models');
-const { UnprocessableEntityError } = require('../utils/ErrorHelper/customErrors');
+const { UnprocessableEntityError, BadRequestError } = require('../utils/ErrorHelper/customErrors');
+const { Rule } = require('../utils/validator/Rule');
 const { Validator, ValidationResult } = require('../utils/validator/Validator');
 
-const moment = require('moment');
 
 class ProductService {
     /**
@@ -32,6 +33,15 @@ class ProductService {
      * @returns {Promise<Product[]>}
      */
     async getAll(params) {
+        const validation = Validator.validate(params, {
+            page: new Rule({ required: true }),
+            amount: new Rule({ required: true }),
+        });
+
+        if (!validation.isValid) {
+            throw new BadRequestError(validation.errors);
+        }
+
         return this.productDao.getAll(params);
     }
 
@@ -62,6 +72,11 @@ class ProductService {
             throw new UnprocessableEntityError(validation.errors);
         }
 
+        const hasImages = !!(data.image &&
+            data.image.small &&
+            data.image.medium &&
+            data.image.original);
+
         const categoryExists = await this.categoryDao.getById(data.category.id);
         if (!categoryExists) {
             throw new UnprocessableEntityError('Provided category does not exists');
@@ -70,6 +85,7 @@ class ProductService {
         return this.productDao.create(
             ProductBuilder.Build()
                 .setProduct(data)
+                .addImage(hasImages ? data.image : new Image())
                 .addCreatedAt(moment().unix())
                 .build()
         );

@@ -30,12 +30,12 @@ class CartProduct extends Model {
     static get rules() {
         return {
             id: new Rule({
-                type: 'integer',
+                type: 'number',
                 required: true,
                 min: 0,
             }),
             quantity: new Rule({
-                type: 'integer',
+                type: 'number',
                 required: true,
                 min: 0
             }),

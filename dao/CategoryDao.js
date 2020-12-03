@@ -51,10 +51,11 @@ class CategoryDao extends Dao {
 
     /**
      * get all categories
-     * @typedef  {Object} Params
+     * @typedef {Object} CategoryParams
      * @property {number} page
-     * @property {number} amoun
-     * @property {number} parentId
+     * @property {number} amount
+     * @property {number} [parentId]
+     * @param  {CategoryParams}  params
      * 
      * @param   {Params} params
      * @return  {Promise<Category[]>}
@@ -107,7 +108,8 @@ class CategoryDao extends Dao {
         let createdCategory = null;
 
         const sql = `insert into categories(title, parent_id) values($1, $2) returning id;`
-        const values = [category.name, category.parent];
+        const parentId = category.parent ? category.parent.id : null;
+        const values = [category.title, parentId];
 
         try {
             const data = await this.client.query(sql, values);
@@ -131,13 +133,15 @@ class CategoryDao extends Dao {
      * @returns {Promise<void>}
      */
     async update(category) {
-        const sql = `update categories set title = $1, parent_id = $2 where id = $2`;
-        const values = [category.title, category.parent.id, category.id];
+        const sql = `update categories set title = $2, parent_id = $3 where id = $1`;
+        const parentId = category.parent ? category.parent.id : null;
+        const values = [category.id, category.title, parentId];
 
         try {
             await this.client.query(sql, values);
         }
         catch (error) {
+            console.error(error);
             throw new ServerError(`Failed to update category in database`);
         }
     }
@@ -161,23 +165,6 @@ class CategoryDao extends Dao {
         }
 
         return value;
-    }
-
-    /**
-     * update category by property
-     * @param   {Category}           category   category
-     * @returns {Promise<void>}
-     */
-    async update(category) {
-        const sql = `update categories set title = $1, parent_id = $2 where id = $2`;
-        const values = [category.title, category.parent.id, category.id];
-
-        try {
-            await this.client.query(sql, values);
-        }
-        catch (error) {
-            throw new ServerError(`Failed to update category in database`);
-        }
     }
 
     /**

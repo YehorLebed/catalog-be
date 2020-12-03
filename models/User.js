@@ -19,13 +19,34 @@ class User extends Model {
     }
 
     /**
+     * get model as database schema representation
+     * @return  {Object.<string, any>}
+     */
+    getAttributes() {
+        return {
+            'id': this.id,
+            'email': this.email,
+            'password': this.password,
+            'role_id': this.role.id
+        }
+    }
+
+    /**
+     * getter for tableName
+     * @return  {string}
+     */
+    static get tableName() {
+        return 'users';
+    }
+
+    /**
      * User validation rules
      * @return  {object}
      */
     static get rules() {
         return {
             id: new Rule({
-                type: 'integer',
+                type: 'number',
                 required: false,
                 min: 0,
             }),

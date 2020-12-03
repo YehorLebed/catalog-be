@@ -48,7 +48,7 @@ class Validator {
 
             // required validation
             if (propRule.required !== undefined) {
-                if (propRule.required && propValue == null) {
+                if (propRule.required && propValue === undefined) {
                     errors.push(Validator.messageRequired(property));
                     continue;
                 }
@@ -60,7 +60,7 @@ class Validator {
             // type validation
             if (propRule.type !== undefined) {
                 if (
-                    typeof propRule.type !== 'function' && typeof propValue !== propRule.type ||
+                    typeof propValue !== propRule.type ||
                     typeof propRule.type === 'function' && !(propValue instanceof propRule.type)
                 ) {
                     errors.push(Validator.messageInvalidType(property, propRule.type));

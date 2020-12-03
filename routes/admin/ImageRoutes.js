@@ -8,4 +8,4 @@ router.post('/:id/images/', async (req, res, next) => {
     return controller.save(req, res, next);
 });
 
-module.exports = { adminImageRouter: router };
+module.exports = { imageRouter: router };

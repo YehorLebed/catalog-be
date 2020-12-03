@@ -16,13 +16,33 @@ class Category extends Model {
     }
 
     /**
+     * get model as database schema representation
+     * @return  {Object.<string, any>}
+     */
+    getAttributes() {
+        return {
+            'id': this.id,
+            'title': this.title,
+            'parent_id': this.parent ? this.parent.id : null
+        }
+    }
+
+    /**
+     * getter for tableName
+     * @return  {string}
+     */
+    static get tableName() {
+        return 'categories';
+    }
+
+    /**
      * getter for rules
      * @return  {Object.<string, Rule>}
      */
     static get rules() {
         return {
             id: new Rule({
-                type: 'integer',
+                type: 'number',
                 required: false,
                 min: 0,
             }),
@@ -31,6 +51,9 @@ class Category extends Model {
                 required: true,
                 minlength: 3,
                 maxlength: 50,
+            }),
+            parent: new Rule({
+                required: true,
             })
         }
     }

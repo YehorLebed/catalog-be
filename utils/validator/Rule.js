@@ -5,7 +5,7 @@ class Rule {
      */
     static patternEmail = new RegExp(/^[a-zA-Z0-9.!#$%&'*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*$/);
 
-    static types = ['string', 'number', 'boolean', 'integer'];
+    static types = ['string', 'number', 'boolean'];
 
     /**
      * Rule description

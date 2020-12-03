@@ -13,10 +13,33 @@ class Role extends Model {
         this.name = name;
     }
 
+    /**
+     * get model as database schema representation
+     * @return  {Object.<string, any>}
+     */
+    getAttributes() {
+        return {
+            'id': this.id,
+            'name': this.name,
+        };
+    }
+
+    /**
+     * getter for tableName
+     * @return  {string}
+     */
+    static get tableName() {
+        return 'roles';
+    }
+
+    /**
+     * getter for rules
+     * @return  {Object.<string, Rule>}
+     */
     static get rules() {
         return {
             id: new Rule({
-                type: 'integer',
+                type: 'number',
                 required: false,
                 min: 0,
             }),

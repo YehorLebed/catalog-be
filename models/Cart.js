@@ -27,18 +27,18 @@ class Cart extends Model {
     static get rules() {
         return {
             id: new Rule({
-                type: 'integer',
+                type: 'number',
                 required: false,
                 min: 0,
             }),
             user_id: new Rule({
-                type: 'integer',
+                type: 'number',
                 required: true,
                 min: 0,
             }),
             products: CartProduct.rules,
             updated_at: new Rule({
-                type: 'integer',
+                type: 'number',
                 required: true,
                 min: 0
             }),

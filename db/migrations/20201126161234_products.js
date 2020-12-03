@@ -7,6 +7,7 @@ exports.up = function (knex) {
         price numeric(8, 2) not null,
         is_promo boolean not null,
         category_id integer references categories(id) not null,
+        image jsonb,
         created_at integer not null
     )`);
 };

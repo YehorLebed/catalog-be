@@ -2,7 +2,7 @@ const { CategoryDao } = require('../dao');
 const { Category } = require('../models');
 const { CategoryBuilder } = require('../builder')
 const { Validator, ValidationResult } = require('../utils/validator/Validator')
-const { UnprocessableEntityError } = require('../utils/ErrorHelper/customErrors');
+const { UnprocessableEntityError, BadRequestError } = require('../utils/ErrorHelper/customErrors');
 
 class CategoryService {
 
@@ -16,11 +16,22 @@ class CategoryService {
 
     /**
      * get all categories by params
-     * @param   {{}}  params
+     * @typedef {Object} CategoryParams
+     * @property {number} page
+     * @property {number} amount
+     * @property {number} [parentId]
+     * @param  {CategoryParams}  params
      * @return  {Promise<Category[]>}
      */
     async getAll(params) {
-        return this.categoryDao.getAll(params)
+        const validation = Validator.validate(params, {
+            page: new Rule({ required: true }),
+            amount: new Rule({ required: true }),
+        });
+
+        if (!validation.isValid) {
+            throw new BadRequestError(validation.errors);
+        }
     }
 
     /**
@@ -43,9 +54,13 @@ class CategoryService {
             throw new UnprocessableEntityError(validation.errors);
         }
 
-        const parent = await this.categoryDao.getById(category.parent.id);
-        if (!parent) {
-            throw new UnprocessableEntityError('Failed to create: category parent does not exists')
+        let parent = null;
+
+        if (category.parent) {
+            parent = await this.categoryDao.getById(category.parent.id);
+            if (!parent) {
+                throw new UnprocessableEntityError('Failed to create: category parent does not exists')
+            }
         }
 
         return this.categoryDao.create(
@@ -63,6 +78,7 @@ class CategoryService {
      * @return  {Promise<Category>}
      */
     async update(id, category) {
+        category.id = +id;
         const validation = Validator.validate(category, Category.rules)
         if (!validation.isValid) {
             throw new UnprocessableEntityError(validation.errors);
@@ -84,6 +100,13 @@ class CategoryService {
      * @return  {Promise<void>}
      */
     async delete(id) {
+        const params = { page: 1, amount: 10, parentId: id };
+        const subCategories = await this.categoryDao.getAll(params);
+
+        if (subCategories.length !== 0) {
+            throw new UnprocessableEntityError('Category you want to delete has subcategories');
+        }
+
         await this.categoryDao.deleteById(id);
     }
 }

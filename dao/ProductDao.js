@@ -22,12 +22,11 @@ class ProductDao extends Dao {
         let product = null;
 
         const sql = `select 
-        id, title, description, price, image, is_promo, created_at,
-        c.id as c_id, c.name as c_name
+        p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at,
+        c.id as c_id, c.title as c_title
         from products p
-        right join categories c on (c.id = p.id)
-        group by p.id
-        where id = $1`;
+        join categories c on (c.id = p.category_id)
+        where p.id = $1`;
         const values = [id];
 
         try {
@@ -52,10 +51,11 @@ class ProductDao extends Dao {
 
                 // create product
                 product = ProductBuilder.Build()
-                    .addId(row['id'])
+                    .addId(+row['id'])
                     .addTitle(row['title'])
                     .addDescription(row['description'])
                     .addIsPromo(row['is_promo'])
+                    .addPrice(+row['price'])
                     .addImage(image)
                     .addCategory(category)
                     .addCreatedAt(row['created_at'])
@@ -82,12 +82,11 @@ class ProductDao extends Dao {
      */
     async getAll({ page, amount }) {
         const products = [];
-        const sql = `select distinct
-        id, title, description, price, is_promo, image, created_at,
-        c.id as c_id, c.name as c_name
+        const sql = `select
+        p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at,
+        c.id as c_id, c.title as c_title
         from products p
-        right join categories c on (c.id = p.id)
-        group by p.id
+        join categories c on (c.id = p.category_id)
         limit $1 offset $2`;
         const offset = (page - 1) * amount;
         const values = [amount, offset];
@@ -99,6 +98,7 @@ class ProductDao extends Dao {
 
             if (res.length !== 0) {
                 res.forEach(row => {
+                    console.log(row);
                     // create image
                     const image = ImageBuilder.Build()
                         .addPathToSmall(row['image'].small)
@@ -114,10 +114,11 @@ class ProductDao extends Dao {
 
                     // create product
                     const product = ProductBuilder.Build()
-                        .addId(row['id'])
+                        .addId(+row['id'])
                         .addTitle(row['title'])
                         .addDescription(row['description'])
                         .addIsPromo(row['is_promo'])
+                        .addPrice(+row['price'])
                         .addImage(image)
                         .addCategory(category)
                         .addCreatedAt(row['created_at'])
@@ -128,6 +129,7 @@ class ProductDao extends Dao {
             }
         }
         catch (error) {
+            console.error(error);
             throw new ServerError(`Failed to get products from database`);
         }
         return products;

@@ -30,13 +30,14 @@ class RenderSeed {
      * prepare sql statement
      * @param   {string}    table       table name
      * @param   {string[]}  columns  table columns
-     * @param   {any[]}       items       items to insert
+     * @param   {Object.<string, any>}       items       items to insert
      * @return  {string}
      */
     static prepareInsertStatement(table, columns, items) {
         // prepare sql for columns
         let insertColumns = '';
         columns.forEach((column, idx) => {
+            if (column === 'id') return;
             insertColumns += idx !== columns.length - 1 ? `${column},` : column;
         });
 
@@ -45,6 +46,8 @@ class RenderSeed {
         items.forEach((item, idx) => {
             insertItems += '(';
             columns.forEach((column, idx) => {
+                if (column === 'id') return;
+
                 // add "'" if data is string
                 insertItems += typeof item[column] !== 'string'
                     ? item[column] : `'${item[column]}'`;
