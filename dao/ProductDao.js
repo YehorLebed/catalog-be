@@ -74,7 +74,7 @@ class ProductDao extends Dao {
      * @param   {number[]}    ids
      * @return  {Promise<Product[]>}
      */
-    getForCart(ids) {
+    async getForCart(ids) {
         const products = [];
 
         const list = ids.map((id, idx) =>

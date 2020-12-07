@@ -4,7 +4,7 @@ const { UserDao, RoleDao } = require('../dao');
 const { HashHelper } = require('../utils/HashHelper');
 const { TokenHelper } = require('../utils/TokenHelper');
 const { Validator } = require('../utils/validator/Validator');
-const { UnprocessableEntityError } = require('../utils/ErrorHelper/customErrors');
+const { UnprocessableEntityError, AuthorizationError, PermissionError } = require('../utils/ErrorHelper/customErrors');
 
 class UserService {
 
@@ -123,7 +123,7 @@ class UserService {
 
         if (!data) return null;
 
-        return UserBuilder.Build()
+        req.user = UserBuilder.Build()
             .addId(data.id)
             .addEmail(data.email)
             .addRole(data.role)

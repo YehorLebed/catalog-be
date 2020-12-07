@@ -85,7 +85,7 @@ class CartService {
      * @param   {Cart}  cart
      * @return  {Cart}
      */
-    updateProducts(userId, cart, isMerge = false) {
+    async updateProducts(userId, cart, isMerge = false) {
 
         let cartExists = await this.cartDao.getByUserId(userId);
         if (!cartExists) {
@@ -128,7 +128,7 @@ class CartService {
      * @param   {number}  userId  user id
      * @return  {Promise<void>}
      */
-    deleteByUserId(userId) {
+    async deleteByUserId(userId) {
         return await this.cartDao.deleteByUserId(userId);
     }
 
