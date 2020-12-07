@@ -1,6 +1,6 @@
 const { ControllerFactory } = require('../factories');
 
-class AuthorizationMiddleware {
+class Authorization {
 
     static async authorize(req, res, next) {
         const controller = await ControllerFactory.createUserController();
@@ -13,4 +13,4 @@ class AuthorizationMiddleware {
     }
 }
 
-module.exports = { AuthorizationMiddleware };
+module.exports = { Authorization };

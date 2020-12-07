@@ -1,3 +1,4 @@
+const { ServerError } = require('../utils/ErrorHelper/customErrors/ServerError');
 const { CartBuilder, UserBuilder } = require('../builder');
 const { User, Cart } = require('../models');
 const { Dao } = require('../core/Dao');
@@ -17,12 +18,9 @@ class CartDao extends Dao {
      * @return  {Promise<Cart>}
      */
     async getByUserId(userId) {
-        const cart = null;
+        let cart = null;
 
-        const sql = `select 
-        c.id, c.products, c.updatedAt
-        from carts 
-        where user_id = $1 limit 1`;
+        const sql = `select id, products, updated_at from carts where user_id = $1 limit 1`;
         const values = [userId];
 
         try {
@@ -32,12 +30,14 @@ class CartDao extends Dao {
             if (res) {
                 cart = CartBuilder.Build()
                     .addId(res['id'])
-                    .addCartProducts(res['products'])
+                    .addUser({ id: userId })
+                    .setCartProducts(res['products'])
                     .addUpdatedAt(res['updated_at'])
                     .build();
             }
         }
         catch (error) {
+            console.log(error);
             throw new ServerError(`Failed to get cart by user id from database`);
         }
         return cart;
@@ -56,7 +56,7 @@ class CartDao extends Dao {
         const carts = [];
 
         const sql = `select 
-        c.id, c.products, c.updatedAt,
+        c.id, c.products, c.updated_at,
         u.id as u_id, u.email as u_email
         from carts c
         join users u on (u.id = c.user_id)
@@ -69,16 +69,11 @@ class CartDao extends Dao {
             const res = data.rows;
 
             res.forEach(row => {
-                const user = UserBuilder.Build()
-                    .addId(row['u_id'])
-                    .addEmail(row['u_email'])
-                    .build();
-
                 const cart = CartBuilder.Build()
-                    .addId(res['id'])
-                    .addUser(user)
-                    .addCartProducts(res['products'])
-                    .addUpdatedAt(res['updated_at'])
+                    .addId(row['id'])
+                    .addUser({ id: row['u_id'], email: row['u_email'] })
+                    .setCartProducts(row['products'])
+                    .addUpdatedAt(row['updated_at'])
                     .build();
 
                 carts.push(cart);

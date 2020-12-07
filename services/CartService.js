@@ -2,6 +2,7 @@ const moment = require('moment');
 const { CartDao, ProductDao } = require('../dao');
 const { Cart, CartProduct } = require('../models');
 const { CartBuilder } = require('../builder')
+const { Rule } = require('../utils/validator/Rule')
 const { Validator, ValidationResult } = require('../utils/validator/Validator')
 const { UnprocessableEntityError, BadRequestError } = require('../utils/ErrorHelper/customErrors');
 const { CartProductBuilder } = require('../builder/CartProductBuilder');

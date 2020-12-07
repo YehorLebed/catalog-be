@@ -40,7 +40,7 @@ class CartController {
     async getByUserId(req, res, next) {
         try {
             const userId = req.user.role.name === 'admin'
-                ? +req.params.id
+                ? +req.params.userId
                 : req.user.id;
 
             const result = await this.cartService.getByUserId(userId);
@@ -86,10 +86,11 @@ class CartController {
         try {
             const data = req.body;
             const userId = req.user.role.name === 'admin'
-                ? +req.params.id
+                ? +req.params.userId
                 : req.user.id;
+            const isMerge = req.query.isMerge;
 
-            const result = await this.cartService.updateProducts(userId, data);
+            const result = await this.cartService.updateProducts(userId, data, isMerge);
             return res.status(200).json(result);
         }
         catch (error) {
@@ -108,7 +109,7 @@ class CartController {
     async delete(req, res, next) {
         try {
             const userId = req.user.role.name === 'admin'
-                ? +req.params.id
+                ? +req.params.userId
                 : req.user.id;
 
             await this.cartService.deleteByUserId(userId);

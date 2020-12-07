@@ -21,7 +21,7 @@ class Cart extends Model {
 
     static get tableName() { return 'carts'; }
 
-    static getAttributes() {
+    getAttributes() {
         return {
             'id': this.id,
             'user_id': this.user ? this.user.id : null,
