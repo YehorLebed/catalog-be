@@ -1,5 +1,5 @@
 const { User } = require('../models');
-const { UserBuilder } = require('../builder');
+const { UserBuilder, RoleBuilder } = require('../builder');
 const { UserDao, RoleDao } = require('../dao');
 const { HashHelper } = require('../utils/HashHelper');
 const { TokenHelper } = require('../utils/TokenHelper');
@@ -104,6 +104,44 @@ class UserService {
 
         // generate jwt token
         return TokenHelper.generateUserToken(user);
+    }
+
+    /**
+     * decode token
+     * 
+     * @param   {Request}  req  req
+     *
+     * @return  {Promise<User>}
+     */
+    async authorize(req) {
+        if (!req.headers.authorization) {
+            throw new AuthorizationError(['Not Auhtorized']);
+        }
+
+        const token = req.headers.authorization.split(' ')[1];
+        const data = await TokenHelper.decodeToken(token);
+
+        if (!data) return null;
+
+        return UserBuilder.Build()
+            .addId(data.id)
+            .addEmail(data.email)
+            .addRole(data.role)
+            .build();
+    }
+
+    /**
+     * authorize admin
+     * @param   {User}  user  user
+     * @return  {Prmise<void>}  has permission
+     */
+    async authorizeAdmin(user) {
+        if (!user) {
+            throw new AuthorizationError(['Not Auhtorized']);
+        }
+        if (user.role.name !== 'admin') {
+            throw new PermissionError('Permission denied');
+        }
     }
 }
 

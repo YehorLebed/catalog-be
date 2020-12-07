@@ -1,8 +1,9 @@
 const { Client } = require('pg');
-const { Product, Image, Category } = require('../models');
+const { Product, CartProduct } = require('../models');
 const { Dao } = require('../core/Dao');
-const { ProductBuilder, ImageBuilder, CategoryBuilder } = require('../builder');
+const { ProductBuilder, ImageBuilder, CategoryBuilder, CartProductBuilder } = require('../builder');
 const { ServerError } = require('../utils/ErrorHelper/customErrors');
+const { relativeTimeThreshold } = require('moment');
 
 class ProductDao extends Dao {
     /**
@@ -66,6 +67,41 @@ class ProductDao extends Dao {
             throw new ServerError(`Failed to get product by id from database`);
         }
         return product;
+    }
+
+    /**
+     * get producs for cart
+     * @param   {number[]}    ids
+     * @return  {Promise<Product[]>}
+     */
+    getForCart(ids) {
+        const products = [];
+
+        const list = ids.map((id, idx) =>
+            idx !== ids.length - 1 ? `$${idx + 1},` : `$${idx + 1}`
+        ).join('');
+
+        const sql = `select id, price from products where id in(${list})`;
+        const values = [...ids];
+
+        try {
+            const data = await this.client.query(sql, values);
+            const res = data.rows;
+
+            res.forEach(row => {
+                const product = ProductBuilder.Build()
+                    .addId(raw['id'])
+                    .addPrice(raw['price'])
+                    .build();
+
+                products.push(product);
+            })
+        }
+        catch (error) {
+            throw new ServerError(`Failed to get products by id from database`);
+        }
+
+        return products;
     }
 
     /**
@@ -196,7 +232,7 @@ class ProductDao extends Dao {
     /**
      * update product
      * @param   {Product}  product  product
-     * @return  {Promise<void>}           [return description]
+     * @return  {Promise<void>}
      */
     async update(product) {
         const sql = `update products 

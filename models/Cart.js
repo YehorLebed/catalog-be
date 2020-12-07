@@ -1,46 +1,42 @@
 const { Model } = require('../core/Model');
 const { CartProduct } = require('./CartProduct');
+const { User } = require('./User');
 const { Rule } = require('../utils/validator/Rule');
 
 class Cart extends Model {
     /**
      * Cart constructor
      * @param   {number}         id         cart id
-     * @param   {number}         user_id     owner id
+     * @param   {User}           user       owner
      * @param   {CartProduct[]}  products   products
-     * @param   {number}         updated_at  last updated time
+     * @param   {number}         updatedAt  last updated time
      */
-    constructor(id, user_id, products, updated_at) {
+    constructor(id = null, user = null, products = [], updatedAt = null) {
         super();
         this.id = id;
-        this.user_id = user_id;
+        this.user = user;
         this.products = products;
-        this.updated_at = updated_at;
+        this.updatedAt = updatedAt;
     }
 
     static get tableName() { return 'carts'; }
 
-    static get attributes() {
-        return ['user_id', 'products', 'updated_at'];
+    static getAttributes() {
+        return {
+            'id': this.id,
+            'user_id': this.user ? this.user.id : null,
+            'products': this.products ? JSON.stringify(this.products) : null,
+            'updated_at': this.updatedAt
+        };
     }
 
     static get rules() {
         return {
-            id: new Rule({
-                type: 'number',
-                required: false,
-                min: 0,
-            }),
-            user_id: new Rule({
-                type: 'number',
+            user: new Rule({
                 required: true,
-                min: 0,
             }),
-            products: CartProduct.rules,
-            updated_at: new Rule({
-                type: 'number',
+            products: new Rule({
                 required: true,
-                min: 0
             }),
         }
     }

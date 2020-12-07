@@ -32,6 +32,8 @@ class CategoryService {
         if (!validation.isValid) {
             throw new BadRequestError(validation.errors);
         }
+
+        return this.categoryDao.getAll(params);
     }
 
     /**
