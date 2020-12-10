@@ -1,9 +1,8 @@
 const { Client } = require('pg');
-const { Product, CartProduct } = require('../models');
+const { Product } = require('../models');
 const { Dao } = require('../core/Dao');
-const { ProductBuilder, ImageBuilder, CategoryBuilder, CartProductBuilder } = require('../builder');
+const { ProductBuilder, ImageBuilder, CategoryBuilder } = require('../builder');
 const { ServerError } = require('../utils/ErrorHelper/customErrors');
-const { relativeTimeThreshold } = require('moment');
 
 class ProductDao extends Dao {
     /**
@@ -134,7 +133,6 @@ class ProductDao extends Dao {
 
             if (res.length !== 0) {
                 res.forEach(row => {
-                    console.log(row);
                     // create image
                     const image = ImageBuilder.Build()
                         .addPathToSmall(row['image'].small)
@@ -169,6 +167,66 @@ class ProductDao extends Dao {
             throw new ServerError(`Failed to get products from database`);
         }
         return products;
+    }
+
+    /**
+     * get product views by parameter
+     * @param   {number}  userId  user id
+     * @param   {number}  limit   limit
+     * @return  {Promise<Product[]>}
+    */
+    async getMostViewedProductByUserId(userId, limit) {
+
+        const products = [];
+        const values = [userId, limit];
+        const sql = `select
+        p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at,
+        c.id as c_id, c.title as c_title
+        from product_views pv
+        join products p on (pv.product_id = p.id)
+        join categories c on (c.id = p.category_id)
+        where pv.user_id = $1
+        order by pv.quantity desc
+        limit $2
+        `;
+
+        try {
+            const data = await this.client.query(sql, values);
+            const res = data.rows;
+
+            res.forEach(row => {
+                // create image
+                const image = ImageBuilder.Build()
+                    .addPathToSmall(row['image'].small)
+                    .addPathToMedium(row['image'].medium)
+                    .addPathToOriginal(row['image'].original)
+                    .build();
+
+                // create category
+                const category = CategoryBuilder.Build()
+                    .addId(row['c_id'])
+                    .addTitle(row['c_title'])
+                    .build();
+
+                // create product
+                const product = ProductBuilder.Build()
+                    .addId(+row['id'])
+                    .addTitle(row['title'])
+                    .addDescription(row['description'])
+                    .addIsPromo(row['is_promo'])
+                    .addPrice(+row['price'])
+                    .addImage(image)
+                    .addCategory(category)
+                    .addCreatedAt(row['created_at'])
+                    .build();
+
+                products.push(product);
+            });
+        }
+        catch (error) {
+            throw new ServerError(`Failed to get most viewed user products from database`);
+        }
+        return productViews;
     }
 
     /**

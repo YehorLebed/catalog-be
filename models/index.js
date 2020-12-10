@@ -6,4 +6,5 @@ module.exports = {
     Product: require('./Product').Product,
     Category: require('./Category').Category,
     CartProduct: require('./CartProduct').CartProduct,
+    ProductView: require('./ProductView').ProductView,
 };

@@ -1,11 +1,10 @@
 const moment = require('moment');
-const { ProductBuilder } = require('../builder/ProductBuilder');
-const { ProductDao, ImageDao, CategoryDao } = require('../dao');
-const { Product } = require('../models');
-const { UnprocessableEntityError, BadRequestError } = require('../utils/ErrorHelper/customErrors');
 const { Rule } = require('../utils/validator/Rule');
-const { Validator, ValidationResult } = require('../utils/validator/Validator');
-
+const { Product, ProductView } = require('../models');
+const { ProductBuilder } = require('../builder/ProductBuilder');
+const { ProductDao, ImageDao, CategoryDao, ProductViewDao } = require('../dao');
+const { UnprocessableEntityError, BadRequestError } = require('../utils/ErrorHelper/customErrors');
+const { Validator } = require('../utils/validator/Validator');
 
 class ProductService {
     /**
@@ -14,10 +13,11 @@ class ProductService {
      * @param   {ImageDao}     imageDao   image dao
      * @param   {CategoryDao}  categoryDao   category dao
      */
-    constructor(productDao, imageDao, categoryDao) {
+    constructor(productDao, imageDao, categoryDao, productViewDao) {
         this.productDao = productDao;
         this.imageDao = imageDao;
         this.categoryDao = categoryDao;
+        this.productViewDao = productViewDao;
     }
 
     /**
@@ -112,6 +112,38 @@ class ProductService {
         await this.productDao.update(product);
 
         return product;
+    }
+
+    /**
+     * add product view
+     * @param   {User}  user  user instance
+     * @param   {Product}  product  product view
+     * @return  {Promise<void>}
+     */
+    async addViewToProduct(user, product) {
+        const productViewExists = await this.productViewDao
+            .getByUserIdAndProductId(user.id, product.id);
+
+        // increase number of views if product
+        if (productViewExists) {
+            productViewExists.quantity++;
+            await this.productViewDao.update(productViewExists);
+            return;
+        }
+
+        // create product view if not exists
+        const productView = new ProductView(user.id, product.id, 1);
+        await this.productViewDao.create(productView);
+    }
+
+    /**
+     * get product views for user
+     * @param   {User}    user    user
+     * @param   {number}  amount  amount
+     * @return  {Promise<Product[]>}
+     */
+    async getMostViewedProductByUser(user) {
+        return this.productDao.getMostViewedProductByUserId(user.id);
     }
 
     /**
