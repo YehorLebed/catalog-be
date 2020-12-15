@@ -8,6 +8,9 @@ const { FsHelper } = require('../utils/FsHelper');
 
 class ImageDao {
 
+    static MAX_L_WIDTH = 1280;
+    static MAX_L_HEIGHT = 720;
+
     /**
      * ImageDao constructor
      */
@@ -85,6 +88,44 @@ class ImageDao {
                 }
             });
         })
+    }
+
+    /**
+     * compress image by path
+     * @param   {string}  imagePath  image to compress
+     * @return  {string}
+     */
+    async _compress(imagePath) {
+        Jimp.read(imagePath).then(image => {
+            const w = image.getWidth();
+            const h = image.getWidth();
+
+            const isLandscape = w > h;
+
+            let newWidth = null;
+            let newHeight = null;
+
+            if (isLandscape) {
+                const diffWidth = ImageDao.MAX_L_WIDTH - w;
+                const diffHeight = ImageDao.MAX_L_HEIGHT - h;
+
+                if (diffWidth > diffHeight) newWidth = ImageDao.MAX_L_WIDTH;
+                else newHeight = ImageDao.MAX_L_HEIGHT;
+            }
+            else {
+                const diffWidth = ImageDao.MAX_L_HEIGHT - w;
+                const diffHeight = ImageDao.MAX_L_WIDTH - h;
+
+                if (diffWidth > diffHeight) newWidth = ImageDao.MAX_L_HEIGHT;
+                else newHeight = ImageDao.MAX_L_WIDTH;
+            }
+            image
+                .resize(newWidth || Jimp.AUTO, newHeight || Jimp.AUTO)
+                .quality(20)
+                .writeAsync(imagePath);
+        });
+
+        return imagePath;
     }
 
     /**

@@ -52,27 +52,22 @@ class CategoryDao extends Dao {
     /**
      * get all categories
      * @typedef {Object} CategoryParams
-     * @property {number} page
-     * @property {number} amount
      * @property {number} [parentId]
      * @param  {CategoryParams}  params
-     * 
-     * @param   {Params} params
      * @return  {Promise<Category[]>}
      */
-    async getAll({ page, amount, parentId }) {
+    async getAll({ parentId }) {
         const categories = [];
 
         const sql = `select id, title, parent_id
         from categories 
-        where parent_id ${parentId ? '= $3' : 'is null'}
-        limit $1 offset $2`;
-        const offset = (page - 1) * amount;
-        const values = [amount, offset];
-        if (parentId) values.push(parentId);
+        where parent_id ${parentId ? '= $1' : 'is null'}
+        order by char_length(title) desc`;
 
         try {
-            const data = await this.client.query(sql, values);
+            const data = parentId
+                ? await this.client.query(sql, [parentId])
+                : await this.client.query(sql);
             const res = data.rows;
 
             const parent = !parentId ? null : CategoryBuilder.Build()

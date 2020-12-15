@@ -23,36 +23,32 @@ class ServiceFactory {
 
         // create dao
         if (type === 'user') {
-            return new UserService(
-                ...(await Promise.all([
-                    DaoFactory.createDao('user'),
-                    DaoFactory.createDao('role'),
-                ]))
-            );
+            const client = await DaoFactory.createClient()
+            return new UserService(...(await Promise.all(
+                DaoFactory.createDao('user', client),
+                DaoFactory.createDao('role', client),
+            )));
         }
         else if (type === 'image') {
-            return new ImageService(
-                await DaoFactory.createDao('image')
-            );
+            const imageDao = await DaoFactory.createDao('image')
+            return new ImageService(imageDao);
         }
         else if (type === 'product') {
-            return new ProductService(
-                ...(await Promise.all([
-                    DaoFactory.createDao('product'),
-                    DaoFactory.createDao('image'),
-                    DaoFactory.createDao('category'),
-                ]))
-            );
+            const client = await DaoFactory.createClient();
+            return new ProductService(...(await Promise.all([
+                DaoFactory.createDao('product', client),
+                DaoFactory.createDao('image'),
+                DaoFactory.createDao('category', client),
+                DaoFactory.createDao('productView', client),
+            ])));
         }
         else if (type === 'category') {
-            return new CategoryService(
-                await DaoFactory.createDao('category')
-            );
+            const categoryDao = await DaoFactory.createDao('category');
+            return new CategoryService(categoryDao);
         }
         else if (type === 'cart') {
-            return new CartService(
-                await DaoFactory.createDao('cart')
-            );
+            const cartDao = await DaoFactory.createDao('cart');
+            return new CartService(cartDao);
         }
 
         return null;

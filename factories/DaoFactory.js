@@ -1,5 +1,8 @@
+const { Client } = require('pg');
 const { Dao } = require('../core/Dao');
-const { UserDao, RoleDao, ImageDao, ProductDao, CategoryDao, CartDao } = require('../dao');
+const {
+    UserDao, RoleDao, ImageDao, ProductDao,
+    CategoryDao, CartDao, ProductViewDao } = require('../dao');
 const { Database } = require('../core/Database');
 
 class DaoFactory {
@@ -9,15 +12,23 @@ class DaoFactory {
      * @return  {string[]}
      */
     static get types() {
-        return ['user', 'role', 'image', 'product', 'category', 'cart'];
+        return ['user', 'role', 'image', 'product', 'category', 'cart', 'productView'];
+    }
+
+    /**
+     * create db client
+     * @return  {Promise<Client>}
+     */
+    static async createClient() {
+        return await Database.instance.createClient();
     }
 
     /**
      * get dao
-     * @param   {'user'|'role'|'image'|'product'|'category'|'cart'}  type  dao type
+     * @param   {'user'|'role'|'image'|'product'|'category'|'cart'|'productView'}  type  dao type
      * @return  {Promise<Dao>}
      */
-    static async createDao(type) {
+    static async createDao(type, client = null) {
         if (!type || typeof type !== 'string' || !DaoFactory.types.includes(type)) {
             return null;
         }
@@ -27,7 +38,9 @@ class DaoFactory {
         }
 
         // create database connection 
-        const client = await Database.instance.createClient();
+        if (!client) {
+            client = await Database.instance.createClient();
+        }
 
         // create dao
         if (type === 'user') {
@@ -44,6 +57,8 @@ class DaoFactory {
         }
         else if (type === 'cart') {
             return new CartDao(client);
+        } else if (type = 'productView') {
+            return new ProductViewDao(client);
         }
 
         return null;

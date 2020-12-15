@@ -4,7 +4,7 @@ const { ControllerFactory } = require('../../factories');
 const router = new Router();
 
 router.get('/', async (req, res, next) => {
-    const controller = await ControllerFactory.createCategoryController()
+    const controller = await ControllerFactory.createCategoryController();
     return controller.getAll(req, res, next);
 });
 

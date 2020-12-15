@@ -27,14 +27,6 @@ create table categories
     parent_id integer references categories(id) null
 );
 
-create table images
-(
-    id serial primary key,
-    title varchar(255) not null,
-    path varchar(255) not null,
-    size varchar(255) not null check(size in ('small', 'medium', 'original'))
-);
-
 create table products
 (
     id serial primary key,
@@ -43,14 +35,15 @@ create table products
     price numeric(8, 2) not null,
     is_promo boolean not null,
     category_id integer references categories(id) not null,
-    created_at integer not null
+    created_at integer not null,
+    image jsonb
 );
 
 create table product_views
 (
     id serial primary key,
-    product_id integer references products(id),
     user_id integer references users(id),
+    product_id integer references products(id),
     quantity integer not null,
     updated_at integer not null
 );

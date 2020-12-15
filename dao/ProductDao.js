@@ -14,13 +14,26 @@ class ProductDao extends Dao {
     }
 
     /**
+     * get default schema for product
+     */
+    getDefaultSchema() {
+        return {
+            id: 'id',
+            title: 'title',
+            description: 'description',
+            price: 'price',
+            isPromo: 'is_promo',
+            image: 'image',
+            createdAt: 'created_at'
+        }
+    }
+
+    /**
      * get product by property and its value
      * @param   {number}     id product id
      * @return  {Promise<Product>}
      */
     async getById(id) {
-        let product = null;
-
         const sql = `select 
         p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at,
         c.id as c_id, c.title as c_title
@@ -28,145 +41,63 @@ class ProductDao extends Dao {
         join categories c on (c.id = p.category_id)
         where p.id = $1`;
         const values = [id];
+        const schema = this.getDefaultSchema();
 
-        try {
-            // fetch data
-            const data = await this.client.query(sql, values);
-            const res = data.rows;
-
-            if (res.length !== 0) {
-                const row = res[0];
-                // create image
-                const image = ImageBuilder.Build()
-                    .addPathToSmall(row['image'].small)
-                    .addPathToMedium(row['image'].medium)
-                    .addPathToOriginal(row['image'].original)
-                    .build();
-
-                // create category
-                const category = CategoryBuilder.Build()
-                    .addId(row['c_id'])
-                    .addTitle(row['c_title'])
-                    .build();
-
-                // create product
-                product = ProductBuilder.Build()
-                    .addId(+row['id'])
-                    .addTitle(row['title'])
-                    .addDescription(row['description'])
-                    .addIsPromo(row['is_promo'])
-                    .addPrice(+row['price'])
-                    .addImage(image)
-                    .addCategory(category)
-                    .addCreatedAt(row['created_at'])
-                    .build();
-            }
-        }
-        catch (error) {
-            throw new ServerError(`Failed to get product by id from database`);
-        }
-        return product;
+        return this.executeProducts(sql, values, schema, true);
     }
 
     /**
-     * get producs for cart
-     * @param   {number[]}    ids
-     * @return  {Promise<Product[]>}
+     * get recently added products
+     * @param {number} categoryId 
+     * @param {amount: number, page: number} params 
+     * @returns {Promise<Product[]>}
      */
-    async getForCart(ids) {
-        const products = [];
-
-        const list = ids.map((id, idx) =>
-            idx !== ids.length - 1 ? `$${idx + 1},` : `$${idx + 1}`
-        ).join('');
-
-        const sql = `select id, price from products where id in(${list})`;
-        const values = [...ids];
-
-        try {
-            const data = await this.client.query(sql, values);
-            const res = data.rows;
-
-            res.forEach(row => {
-                const product = ProductBuilder.Build()
-                    .addId(raw['id'])
-                    .addPrice(raw['price'])
-                    .build();
-
-                products.push(product);
-            })
-        }
-        catch (error) {
-            throw new ServerError(`Failed to get products by id from database`);
-        }
-
-        return products;
-    }
-
-    /**
-     * get all products
-     * @typedef {Object} Params
-     * @property {number} page       page
-     * @property {number} amount     amount
-     * @property {number} [minPrice]   min price
-     * @property {number} [maxPrice]   max price
-     * @property {number} [categoryId] category id
-     * @property {string} [search]     search string
-     * @param  {Params} params
-     * @return  {Promise<Product[]>}
-     */
-    async getAll({ page, amount }) {
-        const products = [];
-        const sql = `select
-        p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at,
-        c.id as c_id, c.title as c_title
-        from products p
-        join categories c on (c.id = p.category_id)
-        limit $1 offset $2`;
+    async getRecentlyAddedProducts({ amount = 10, page = 1 }) {
+        const sql = `
+        select p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at
+        from products p order by created_at desc limit $1 offset $2;`;
         const offset = (page - 1) * amount;
         const values = [amount, offset];
+        const schema = this.getDefaultSchema();
+        return this.executeProducts(sql, values, schema);
+    }
 
-        try {
-            // fetch data
-            const data = await this.client.query(sql, values);
-            const res = data.rows;
+    async getPopularProducts({ amount = 10, page = 1 }) {
+        const sql = `
+        select p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at
+        from products p 
+        join product_views pv on pv.product_id = p.id
+        order by pv.quantity
+        limit $1 offset $2;
+        `;
+        const offset = (page - 1) * amount;
+        const values = [amount, offset];
+        const schema = this.getDefaultSchema();
+        return this.executeProducts(sql, values, schema);
+    }
 
-            if (res.length !== 0) {
-                res.forEach(row => {
-                    // create image
-                    const image = ImageBuilder.Build()
-                        .addPathToSmall(row['image'].small)
-                        .addPathToMedium(row['image'].medium)
-                        .addPathToOriginal(row['image'].original)
-                        .build();
-
-                    // create category
-                    const category = CategoryBuilder.Build()
-                        .addId(row['c_id'])
-                        .addTitle(row['c_title'])
-                        .build();
-
-                    // create product
-                    const product = ProductBuilder.Build()
-                        .addId(+row['id'])
-                        .addTitle(row['title'])
-                        .addDescription(row['description'])
-                        .addIsPromo(row['is_promo'])
-                        .addPrice(+row['price'])
-                        .addImage(image)
-                        .addCategory(category)
-                        .addCreatedAt(row['created_at'])
-                        .build();
-
-                    products.push(product);
-                });
-            }
-        }
-        catch (error) {
-            console.error(error);
-            throw new ServerError(`Failed to get products from database`);
-        }
-        return products;
+    /**
+     * get products by category id
+     * @param {number} categoryId 
+     * @param {amount: number, page: number} params 
+     * @returns {Promise<Product[]>}
+     */
+    async getProductsByCategoryIdAndParams(categoryId, { amount = 10, page = 1 }) {
+        const sql = `
+        with recursive r as (
+            select c1.id from categories c1 where c1.id = $1
+            union
+            select c2.id from categories c2
+            join r on c2.parent_id = r.id
+        )
+        select p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at
+        from r join products p on p.category_id = r.id
+        limit $2 offset $3;
+        `;
+        const offset = (page - 1) * amount;
+        const values = [categoryId, amount, offset];
+        const schema = this.getDefaultSchema();
+        return this.executeProducts(sql, values, schema);
     }
 
     /**
@@ -175,58 +106,66 @@ class ProductDao extends Dao {
      * @param   {number}  limit   limit
      * @return  {Promise<Product[]>}
     */
-    async getMostViewedProductByUserId(userId, limit) {
-
-        const products = [];
-        const values = [userId, limit];
-        const sql = `select
+    async getMostViewedProductByUserId(userId, { amount, page }) {
+        const sql = `select 
         p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at,
-        c.id as c_id, c.title as c_title
         from product_views pv
         join products p on (pv.product_id = p.id)
         join categories c on (c.id = p.category_id)
         where pv.user_id = $1
         order by pv.quantity desc
-        limit $2
-        `;
+        limit $2 offset $3`;
+        const offset = (page - 1) * amount;
+        const values = [userId, amount, offset];
+        const schema = this.getDefaultSchema();
 
+        return this.executeProducts(sql, values, schema);
+    }
+
+    async executeProducts(sql, values, schema = {}, isSingle = false) {
+        const products = [];
         try {
+            // fetch data
             const data = await this.client.query(sql, values);
             const res = data.rows;
 
             res.forEach(row => {
-                // create image
-                const image = ImageBuilder.Build()
-                    .addPathToSmall(row['image'].small)
-                    .addPathToMedium(row['image'].medium)
-                    .addPathToOriginal(row['image'].original)
-                    .build();
-
-                // create category
-                const category = CategoryBuilder.Build()
-                    .addId(row['c_id'])
-                    .addTitle(row['c_title'])
-                    .build();
-
                 // create product
-                const product = ProductBuilder.Build()
-                    .addId(+row['id'])
-                    .addTitle(row['title'])
-                    .addDescription(row['description'])
-                    .addIsPromo(row['is_promo'])
-                    .addPrice(+row['price'])
-                    .addImage(image)
-                    .addCategory(category)
-                    .addCreatedAt(row['created_at'])
-                    .build();
+                const product = new Product();
+
+                if (schema.id) product.id = row[schema.id]
+                if (schema.title) product.title = row[schema.title]
+                if (schema.description) product.description = row[schema.description]
+                if (schema.isPromo) product.isPromo = row[schema.isPromo]
+                if (schema.price) product.price = row[schema.price]
+                if (schema.image) product.image = row[schema.image]
+                if (schema.createdAt) product.createdAt = row[schema.createdAt]
 
                 products.push(product);
             });
         }
         catch (error) {
-            throw new ServerError(`Failed to get most viewed user products from database`);
+            console.error(error);
+            throw new ServerError(`Failed to get products from database`);
         }
-        return productViews;
+        return isSingle ? products[0] : products;
+    }
+
+    /**
+ * get producs for cart
+ * @param   {number[]}    ids
+ * @return  {Promise<Product[]>}
+ */
+    async getForCart(ids) {
+        const list = ids.map((id, idx) =>
+            idx !== ids.length - 1 ? `$${idx + 1},` : `$${idx + 1}`
+        ).join('');
+
+        const sql = `select id, price from products where id in(${list})`;
+        const values = [...ids];
+        const schema = { id: 'id', price: 'price' };
+
+        return this.executeProducts(sql, values, schema);
     }
 
     /**
@@ -235,8 +174,6 @@ class ProductDao extends Dao {
      * @return  {Promise<Product>}
      */
     async create(product) {
-        let createdProduct = null;
-
         const sql = `insert into 
         products(title, description, price, is_promo, image, category_id, created_at) 
         values($1, $2, $3, $4, $5, $6, $7) returning id;`
@@ -250,20 +187,10 @@ class ProductDao extends Dao {
             product.createdAt,
         ];
 
-        try {
-            const data = await this.client.query(sql, values);
-            const res = data.rows[0];
-
-            // expand product with inserted product id
-            createdProduct = ProductBuilder.Build()
-                .setProduct(product)
-                .addId(res['id'])
-                .build();
-        }
-        catch (error) {
-            throw new ServerError('Failed to create product in database');
-        }
-        return createdProduct;
+        const schema = { id: 'id' };
+        const created = await this.executeProducts(sql, values, schema, true);
+        product.id = created.id;
+        return product;
     }
 
     /**
@@ -277,13 +204,7 @@ class ProductDao extends Dao {
         const sql = `update products set ${name} = $1 where id = $2 returning ${name}`;
         updatedValue = name !== 'image' ? value : JSON.stringify(value)
         const values = [updatedValue, product.id];
-
-        try {
-            await this.client.query(sql, values);
-        }
-        catch (error) {
-            throw new ServerError(`Failed to update product property '${name}' in database`);
-        }
+        await this.executeProducts(sql, values);
         return value;
     }
 
@@ -306,14 +227,8 @@ class ProductDao extends Dao {
             product.category.id,
             product.createdAt,
         ];
-
-        try {
-            await this.client.query(sql, values);
-        }
-        catch (error) {
-            throw new ServerError(`Failed to update product in database`);
-        }
-        return updatedProperty;
+        await this.executeProducts(sql, values);
+        return product;
     }
 
     /**
@@ -324,13 +239,7 @@ class ProductDao extends Dao {
     async deleteById(id) {
         const sql = `delete from products where id = $1`;
         const values = [id];
-
-        try {
-            await this.client.query(sql, values);
-        }
-        catch (error) {
-            throw new ServerError(`Failed to delete product with id '${id}' from database`);
-        }
+        await this.executeProducts(sql, values);
     }
 }
 

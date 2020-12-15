@@ -17,22 +17,11 @@ class CategoryService {
     /**
      * get all categories by params
      * @typedef {Object} CategoryParams
-     * @property {number} page
-     * @property {number} amount
      * @property {number} [parentId]
      * @param  {CategoryParams}  params
      * @return  {Promise<Category[]>}
      */
     async getAll(params) {
-        const validation = Validator.validate(params, {
-            page: new Rule({ required: true }),
-            amount: new Rule({ required: true }),
-        });
-
-        if (!validation.isValid) {
-            throw new BadRequestError(validation.errors);
-        }
-
         return this.categoryDao.getAll(params);
     }
 

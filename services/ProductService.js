@@ -7,6 +7,22 @@ const { UnprocessableEntityError, BadRequestError } = require('../utils/ErrorHel
 const { Validator } = require('../utils/validator/Validator');
 
 class ProductService {
+
+    static GET_BY_CATEGORY_ID = 1;
+    static GET_RECENTLY_VIEWED = 2;
+    static GET_RECENTLY_ADDED = 3;
+    static GET_POPULAR = 4;
+
+    /**
+     * @typedef {Object} GetParameters
+     * @property {number} page       page
+     * @property {number} amount     amount
+     * @property {number} [minPrice]   min price
+     * @property {number} [maxPrice]   max price
+     * @property {string} [search]     search string
+     * @property {number} [categoryId] category id
+     */
+
     /**
      * ProductService constructor
      * @param   {ProductDao}   productDao product dao
@@ -18,6 +34,23 @@ class ProductService {
         this.imageDao = imageDao;
         this.categoryDao = categoryDao;
         this.productViewDao = productViewDao;
+    }
+
+
+    /**
+     * define type of get query
+     * @param   {GetParameters}  params  params
+     * @return  {number}
+     */
+    defineGetQueryType(params) {
+        if (params.categoryId)
+            return ProductService.GET_BY_CATEGORY_ID;
+
+        if (params.isRecentlyAdded && params.isRecentlyAdded !== 'false')
+            return ProductService.GET_RECENTLY_ADDED;
+
+        if (params.isPopular && params.isPopular !== 'false')
+            return ProductService.GET_POPULAR;
     }
 
     /**
@@ -40,6 +73,24 @@ class ProductService {
 
         if (!validation.isValid) {
             throw new BadRequestError(validation.errors);
+        }
+
+        // fetch products by category id
+        const queryType = this.defineGetQueryType(params);
+        if (queryType === ProductService.GET_BY_CATEGORY_ID) {
+            const categoryId = params.categoryId;
+            const parameters = { amount: params.amount, page: params.page };
+            return this.productDao.getProductsByCategoryIdAndParams(categoryId, parameters);
+        }
+
+        if (queryType === ProductService.GET_RECENTLY_ADDED) {
+            const parameters = { amount: params.amount, page: params.page };
+            return this.productDao.getRecentlyAddedProducts(parameters);
+        }
+
+        if (queryType === ProductService.GET_POPULAR) {
+            const parameters = { amount: params.amount, page: params.page };
+            return this.productDao.getPopularProducts(parameters);
         }
 
         return this.productDao.getAll(params);

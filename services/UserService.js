@@ -19,42 +19,6 @@ class UserService {
     }
 
     /**
-     * getter fro userDao
-     * @return  {UserDao}
-     */
-    get userDao() {
-        return this._userDao;
-    }
-
-    /**
-     * setter for userDao
-     * @param   {UserDao}  userDao userDao
-     */
-    set userDao(userDao) {
-        if (userDao instanceof UserDao) {
-            this._userDao = userDao;
-        }
-    }
-
-    /**
- * getter fro roleDao
- * @return  {RoleDao}
- */
-    get roleDao() {
-        return this._roleDao;
-    }
-
-    /**
-     * setter for roleDao
-     * @param   {RoleDao}  roleDao roleDao
-     */
-    set roleDao(roleDao) {
-        if (roleDao instanceof RoleDao) {
-            this._roleDao = roleDao;
-        }
-    }
-
-    /**
      * create user instance
      * @param   {{email: string, password: string}}  data  data
      * @return  {User}

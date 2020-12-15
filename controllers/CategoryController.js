@@ -12,7 +12,7 @@ class CategoryController {
     }
 
     /**
-     * get all categorys by query parameters
+     * get all categories by query parameters
      * @param {Request}   req   request
      * @param {Response}  res   response
      * @param {Function}  next  next
@@ -22,9 +22,10 @@ class CategoryController {
         try {
             const params = req.query;
             const result = await this.categoryService.getAll(params);
-            return res.status(200).json({ categorys: result });
+            return res.status(200).json({ categories: result });
         }
         catch (error) {
+            console.log(error);
             const errorHelper = new ErrorHelper(error);
             return errorHelper.processResponse(res);
         }
