@@ -53,29 +53,6 @@ class CartController {
     }
 
     /**
-     * create cart
-     * @param {Request}   req   request
-     * @param {Response}  res   response
-     * @param {Function}  next  next
-     * @returns {Response}
-     */
-    async create(req, res, next) {
-        try {
-            const data = req.body;
-            if (req.user.role.name !== 'admin') {
-                data.user = req.user;
-            }
-
-            const result = await this.cartService.create(data);
-            return res.status(200).json(result);
-        }
-        catch (error) {
-            const errorHelper = new ErrorHelper(error);
-            return errorHelper.processResponse(res);
-        }
-    }
-
-    /**
      * update cart
      * @param {Request}   req   request
      * @param {Response}  res   response

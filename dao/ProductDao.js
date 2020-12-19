@@ -62,6 +62,12 @@ class ProductDao extends Dao {
         return this.executeProducts(sql, values, schema);
     }
 
+    /**
+     * get popular products
+     * @param {number} categoryId 
+     * @param {amount: number, page: number} params 
+     * @returns {Promise<Product[]>}
+     */
     async getPopularProducts({ amount = 10, page = 1 }) {
         const sql = `
         select p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at
@@ -77,12 +83,33 @@ class ProductDao extends Dao {
     }
 
     /**
+     * get recomended products
+     * @param {number} categoryId 
+     * @param {amount: number, page: number} params 
+     * @returns {Promise<Product[]>}
+     */
+    async getRecomendedProducts({ amount = 10, page = 1, orderBy, isDesc }) {
+        const sql = `
+        select p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at
+        from products p where p.is_promo = true
+        ${orderBy ? `order by ${orderBy} ` : ''} 
+        ${isDesc && isDesc !== 'false' ? 'desc' : ''}
+        limit $1 offset $2;
+        `;
+        const offset = (page - 1) * amount;
+        const values = [amount, offset];
+        const schema = this.getDefaultSchema();
+        return this.executeProducts(sql, values, schema);
+    }
+
+    /**
      * get products by category id
      * @param {number} categoryId 
      * @param {amount: number, page: number} params 
      * @returns {Promise<Product[]>}
      */
-    async getProductsByCategoryIdAndParams(categoryId, { amount = 10, page = 1 }) {
+    async getProductsByCategoryIdAndParams(categoryId, { amount = 10, page = 1, orderBy, isDesc, minPrice, maxPrice }) {
+        let idx = 4;    // $1 and $2 is for limit
         const sql = `
         with recursive r as (
             select c1.id from categories c1 where c1.id = $1
@@ -92,10 +119,50 @@ class ProductDao extends Dao {
         )
         select p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at
         from r join products p on p.category_id = r.id
+        ${minPrice || maxPrice ? 'where ' : ''}
+        ${minPrice ? `price > $${idx++}` : ''}
+        ${minPrice != undefined && maxPrice != undefined ? ' and ' : ''}
+        ${maxPrice ? `price < $${idx++}` : ''}
+        ${orderBy ? `order by ${orderBy} ` : ''} 
+        ${isDesc && isDesc !== 'false' ? 'desc' : ''}
         limit $2 offset $3;
         `;
         const offset = (page - 1) * amount;
         const values = [categoryId, amount, offset];
+
+        if (minPrice !== undefined) values.push(minPrice);
+        if (maxPrice !== undefined) values.push(maxPrice);
+
+        const schema = this.getDefaultSchema();
+        return this.executeProducts(sql, values, schema);
+    }
+
+    /**
+     * get product views by parameter
+     * @param   {number}  userId  user id
+     * @param   {number}  limit   limit
+     * @return  {Promise<Product[]>}
+    */
+    async getBySearch({ search, amount = 10, page = 1, orderBy, isDesc, minPrice, maxPrice }) {
+        let idx = 4;
+        const sql = `
+        select p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at
+        from products p
+        where (title like $1 or description like $1)
+        ${minPrice || maxPrice ? ' and ' : ''}
+        ${minPrice ? `price > $${idx++}` : ''}
+        ${minPrice != undefined && maxPrice != undefined ? ' and ' : ''}
+        ${maxPrice ? `price < $${idx++}` : ''}
+        ${orderBy ? `order by ${orderBy} ` : ''}
+        ${isDesc && isDesc !== 'false' ? 'desc' : ''}
+        limit $2 offset $3;
+        `;
+        const offset = (page - 1) * amount;
+        const values = [`%${search}%`, amount, offset];
+
+        if (minPrice !== undefined) values.push(minPrice);
+        if (maxPrice !== undefined) values.push(maxPrice);
+
         const schema = this.getDefaultSchema();
         return this.executeProducts(sql, values, schema);
     }

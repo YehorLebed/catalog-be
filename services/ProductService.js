@@ -12,6 +12,8 @@ class ProductService {
     static GET_RECENTLY_VIEWED = 2;
     static GET_RECENTLY_ADDED = 3;
     static GET_POPULAR = 4;
+    static GET_RECOMMENDED = 5;
+    static GET_BY_SEARCH = 6;
 
     /**
      * @typedef {Object} GetParameters
@@ -43,6 +45,9 @@ class ProductService {
      * @return  {number}
      */
     defineGetQueryType(params) {
+        if (params.search)
+            return ProductService.GET_BY_SEARCH;
+
         if (params.categoryId)
             return ProductService.GET_BY_CATEGORY_ID;
 
@@ -51,6 +56,9 @@ class ProductService {
 
         if (params.isPopular && params.isPopular !== 'false')
             return ProductService.GET_POPULAR;
+
+        if (params.isRecommended && params.isRecommended !== 'false')
+            return ProductService.GET_RECOMMENDED;
     }
 
     /**
@@ -69,6 +77,10 @@ class ProductService {
         const validation = Validator.validate(params, {
             page: new Rule({ required: true }),
             amount: new Rule({ required: true }),
+            orderBy: new Rule({
+                required: false,
+                allowed: Product.attributes
+            })
         });
 
         if (!validation.isValid) {
@@ -77,23 +89,27 @@ class ProductService {
 
         // fetch products by category id
         const queryType = this.defineGetQueryType(params);
+
+        if (queryType === ProductService.GET_BY_SEARCH) {
+            return this.productDao.getBySearch(params);
+        }
+
         if (queryType === ProductService.GET_BY_CATEGORY_ID) {
             const categoryId = params.categoryId;
-            const parameters = { amount: params.amount, page: params.page };
-            return this.productDao.getProductsByCategoryIdAndParams(categoryId, parameters);
+            return this.productDao.getProductsByCategoryIdAndParams(categoryId, params);
         }
 
         if (queryType === ProductService.GET_RECENTLY_ADDED) {
-            const parameters = { amount: params.amount, page: params.page };
-            return this.productDao.getRecentlyAddedProducts(parameters);
+            return this.productDao.getRecentlyAddedProducts(params);
         }
 
         if (queryType === ProductService.GET_POPULAR) {
-            const parameters = { amount: params.amount, page: params.page };
-            return this.productDao.getPopularProducts(parameters);
+            return this.productDao.getPopularProducts(params);
         }
 
-        return this.productDao.getAll(params);
+        if (queryType === ProductService.GET_RECOMMENDED) {
+            return this.productDao.getRecomendedProducts(params);
+        }
     }
 
     /**

@@ -51,37 +51,6 @@ class CartService {
     }
 
     /**
-     * create category
-     * @param   {Cart}    cart
-     * @return  {Category}
-     */
-    async create(cart) {
-        // validate cart fields
-        const validation = Validator.validate(cart, Cart.rules);
-        if (!validation.isValid) {
-            throw new UnprocessableEntityError(validation.errors);
-        }
-
-        // validate products
-        cart.products.forEach(product => {
-            const validation = Validator.validate(product, CartProduct.rules);
-            if (!validation.isValid) {
-                throw new UnprocessableEntityError(validation.errors);
-            }
-        });
-
-        const cartProducts = await this._processCartProducts(cart);
-
-        return await this.cartDao.create(
-            CartBuilder.Build()
-                .addUser(cart.user)
-                .setCartProducts(cartProducts)
-                .addUpdatedAt(moment().unix())
-                .build()
-        )
-    }
-
-    /**
      * update cart
      * @param   {Cart}  cart
      * @return  {Cart}

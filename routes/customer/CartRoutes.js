@@ -18,11 +18,6 @@ router.get('/carts/:userId', async (req, res, next) => {
     return controller.getByUserId(req, res, next);
 })
 
-router.post('/carts/', async (req, res, next) => {
-    const controller = await ControllerFactory.createCartController();
-    return controller.create(req, res, next);
-});
-
 router.put('/carts/:userId', async (req, res, next) => {
     const controller = await ControllerFactory.createCartController();
     return controller.update(req, res, next);

@@ -35,6 +35,10 @@ class Product extends Model {
         return 'products';
     }
 
+    static get attributes() {
+        return ['id', 'title', 'description', 'price', 'is_promo', 'category_id', 'image', 'created_at']
+    }
+
     /**
      * get model as database schema representation
      * @return  {Object.<string, any>}
