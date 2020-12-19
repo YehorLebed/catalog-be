@@ -102,7 +102,7 @@ class CartBuilder {
         products.forEach(product => {
             const idx = this.cart.products.findIndex(p => p.id === product.id);
             if (idx === -1) this.cart.products.push(product);
-            this.cart.products[idx].quantity += product.quantity;
+            else this.cart.products[idx].quantity += product.quantity;
         });
         return this;
     }

@@ -178,7 +178,6 @@ class ProductDao extends Dao {
         p.id, p.title, p.description, p.price, p.is_promo, p.image, p.created_at,
         from product_views pv
         join products p on (pv.product_id = p.id)
-        join categories c on (c.id = p.category_id)
         where pv.user_id = $1
         order by pv.quantity desc
         limit $2 offset $3`;
@@ -187,6 +186,25 @@ class ProductDao extends Dao {
         const schema = this.getDefaultSchema();
 
         return this.executeProducts(sql, values, schema);
+    }
+
+    /**
+     * get producs for cart
+     * @param   {number[]}    ids
+     * @return  {Promise<Product[]>}
+    */
+    async getForCart(ids) {
+        const list = ids.map((id, idx) =>
+            idx !== ids.length - 1 ? `$${idx + 1},` : `$${idx + 1}`
+        ).join('');
+
+        const sql = `select 
+        id, title, description, price, is_promo, image, created_at
+        from products where id in(${list})`;
+        const values = [...ids];
+        const schema = this.getDefaultSchema();
+
+        return await this.executeProducts(sql, values, schema);
     }
 
     async executeProducts(sql, values, schema = {}, isSingle = false) {
@@ -216,24 +234,6 @@ class ProductDao extends Dao {
             throw new ServerError(`Failed to get products from database`);
         }
         return isSingle ? products[0] : products;
-    }
-
-    /**
- * get producs for cart
- * @param   {number[]}    ids
- * @return  {Promise<number[]>}
- */
-    async getForCart(ids) {
-        const list = ids.map((id, idx) =>
-            idx !== ids.length - 1 ? `$${idx + 1},` : `$${idx + 1}`
-        ).join('');
-
-        const sql = `select id from products where id in(${list})`;
-        const values = [...ids];
-        const schema = { id: 'id' };
-
-        const result = await this.executeProducts(sql, values, schema);
-        return result.map(p => p.id);
     }
 
     /**

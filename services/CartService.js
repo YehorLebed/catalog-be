@@ -47,18 +47,28 @@ class CartService {
      * @param   {number}  id  user id
      * @return  {Promise<Cart>}
      */
-    getByUserId(id) {
-        return this.cartDao.getByUserId(id);
+    async getByUserId(id) {
+        const cart = await this.cartDao.getByUserId(id);
+        if (cart && cart.products.length !== 0) {
+            const products = await this.productDao.getForCart(cart.products.map(p => p.id));
+            cart.products = cart.products.map(({ id, quantity }) => {
+                const idxProductExists = products.findIndex(p => p.id === id);
+                if (idxProductExists !== -1) {
+                    return { product: products[idxProductExists], quantity };
+                }
+            })
+        }
+        return cart;
     }
 
     /**
      * update cart
      * @param   {number} userId user id
-     * @param   {{id: number, quantity: number}[]} products
+     * @param   {{id: number, quantity: number}} products
      * @param   {'add'|'remove'|'merge'} type update type
      * @return  {Cart}
      */
-    async updateProducts(userId, products, type) {
+    async updateProducts(userId, { products }, type) {
 
         // get cart to update
         let cartExists = await this.cartDao.getByUserId(userId);
@@ -72,7 +82,7 @@ class CartService {
         }
 
         // validate products
-        cart.products.forEach(product => {
+        cartExists.products.forEach(product => {
             const validation = Validator.validate(product, CartProduct.rules);
             if (!validation.isValid) {
                 throw new UnprocessableEntityError(validation.errors);
@@ -99,7 +109,7 @@ class CartService {
                 .build();
         }
 
-        updatedCartProducts = await this.filterCartProductsExists(updatedCart.products);
+        updatedCart.products = await this.filterCartProductsExists(updatedCart.products);
         return await this.cartDao.update(updatedCart);
     }
 
@@ -118,7 +128,8 @@ class CartService {
      * @return  {Promise<CartProduct[]>}
      */
     async filterCartProductsExists(cartProducts) {
-        const idsProductExists = await this.productDao.getForCart(cartProducts.map(p => p.id));
+        const products = await this.productDao.getForCart(cartProducts.map(p => p.id));
+        const idsProductExists = products.map(p => p.id);
         return cartProducts.filter(cp => !idsProductExists.includes(cp.id));
     }
 

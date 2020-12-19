@@ -57,7 +57,7 @@ class CartDao extends Dao {
 
         const sql = `select 
         c.id, c.products, c.updated_at,
-        u.id as u_id, u.email as u_email
+        u.id as u_id, u.email as u_email,
         from carts c
         join users u on (u.id = c.user_id)
         limit $1 offset $2`;

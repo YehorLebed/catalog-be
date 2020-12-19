@@ -24,10 +24,10 @@ class ServiceFactory {
         // create dao
         if (type === 'user') {
             const client = await DaoFactory.createClient()
-            return new UserService(...(await Promise.all(
+            return new UserService(...(await Promise.all([
                 DaoFactory.createDao('user', client),
                 DaoFactory.createDao('role', client),
-            )));
+            ])));
         }
         else if (type === 'image') {
             const imageDao = await DaoFactory.createDao('image')
@@ -47,8 +47,11 @@ class ServiceFactory {
             return new CategoryService(categoryDao);
         }
         else if (type === 'cart') {
-            const cartDao = await DaoFactory.createDao('cart');
-            return new CartService(cartDao);
+            const client = await DaoFactory.createClient();
+            return new CartService(...(await Promise.all([
+                DaoFactory.createDao('cart', client),
+                DaoFactory.createDao('product', client)
+            ])));
         }
 
         return null;
