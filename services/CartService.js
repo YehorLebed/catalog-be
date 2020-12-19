@@ -6,6 +6,7 @@ const { Rule } = require('../utils/validator/Rule')
 const { Validator, ValidationResult } = require('../utils/validator/Validator')
 const { UnprocessableEntityError, BadRequestError } = require('../utils/ErrorHelper/customErrors');
 const { CartProductBuilder } = require('../builder/CartProductBuilder');
+const { ResourceNotFoundError } = require('../utils/ErrorHelper/customErrors/ResourceNotFoundError');
 
 class CartService {
 
@@ -52,20 +53,22 @@ class CartService {
 
     /**
      * update cart
-     * @param   {Cart}  cart
+     * @param   {number} userId user id
+     * @param   {{id: number, quantity: number}[]} products
+     * @param   {'add'|'remove'|'merge'} type update type
      * @return  {Cart}
      */
-    async updateProducts(userId, cart, isMerge = false) {
+    async updateProducts(userId, products, type) {
 
+        // get cart to update
         let cartExists = await this.cartDao.getByUserId(userId);
         if (!cartExists) {
-            cartExists = await this.create(cart);
+            throw new ResourceNotFoundError('User or user cart does not exists');
         }
 
-        // validate cart fields
-        const validation = Validator.validate(cart, Cart.rules);
-        if (!validation.isValid) {
-            throw new UnprocessableEntityError(validation.errors);
+        // check for valid update type provided
+        if (!['add', 'remove', 'merge'].includes(type)) {
+            throw new UnprocessableEntityError('Invalid update type provided');
         }
 
         // validate products
@@ -76,21 +79,28 @@ class CartService {
             }
         });
 
-        const cartProducts = await this._processCartProducts(cart);
+        let updatedCart = null
+        if (type === 'add') {
+            updatedCart = CartBuilder.Build()
+                .setCart(cartExists)
+                .addCartProducts(products)
+                .build();
+        }
+        else if (type === 'remove') {
+            updatedCart = CartBuilder.Build()
+                .setCart(cartExists)
+                .removeCartProducts(products)
+                .build();
+        }
+        else if (type === 'merge') {
+            updatedCart = CartBuilder.Build()
+                .setCart(cartExists)
+                .mergeCartProducts(products)
+                .build();
+        }
 
-        return isMerge
-            ? await this.cartDao.update(
-                CartBuilder.Build()
-                    .setCart(cartExists)
-                    .mergeCartProducts(cartProducts)
-                    .addUpdatedAt(moment().unix())
-                    .build())
-            : await this.cartDao.update(
-                CartBuilder.Build()
-                    .setCart(cartExists)
-                    .setCartProducts(cartProducts)
-                    .addUpdatedAt(moment().unix())
-                    .build());
+        updatedCartProducts = await this.filterCartProductsExists(updatedCart.products);
+        return await this.cartDao.update(updatedCart);
     }
 
     /**
@@ -104,30 +114,12 @@ class CartService {
 
     /**
      * check for each product if it exists
-     * @param   {Cart}  cart  
+     * @param   {CartProduct[]}  cartProducts  
      * @return  {Promise<CartProduct[]>}
      */
-    async _processCartProducts(cart) {
-        // check if products exists
-        const productsId = cart.products.map(p => p.id);
-        const products = await this.productDao.getForCart(productsId);
-        productsId.forEach(id => {
-            if (products.findIndex(p => p.id === id) === -1) {
-                throw new UnprocessableEntityError(`Failed to create cart: product with id ${id} does not exists`)
-            }
-        });
-
-        // create cartProduct instance
-        return products.map(product => {
-            const idx = cart.products.findIndex(p => p.id === product.id);
-            const quantity = cart.products[idx].quantity;
-
-            return CartProductBuilder.Build()
-                .addId(product.id)
-                .addQuantity(quantity)
-                .addPrice(product.price)
-                .build()
-        });
+    async filterCartProductsExists(cartProducts) {
+        const idsProductExists = await this.productDao.getForCart(cartProducts.map(p => p.id));
+        return cartProducts.filter(cp => !idsProductExists.includes(cp.id));
     }
 
 }

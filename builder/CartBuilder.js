@@ -94,6 +94,33 @@ class CartBuilder {
     }
 
     /**
+     * addCart products
+     * @param   {CartProduct[]}  products  products to addd
+     * @return  {CartBuilder}
+     */
+    addCartProducts(products) {
+        products.forEach(product => {
+            const idx = this.cart.products.findIndex(p => p.id === product.id);
+            if (idx === -1) this.cart.products.push(product);
+            this.cart.products[idx].quantity += product.quantity;
+        });
+        return this;
+    }
+
+    removeCartProducts(products) {
+        products.forEach(product => {
+            const idx = this.cart.products.findIndex(p => p.id === product.id);
+            if (idx !== -1) {
+                this.cart.products[idx].quantity -= product.quantity;
+                if (this.cart.products.quantity === 0) {
+                    this.cart.products = this.cart.products.filter(p => p.id === product.id);
+                }
+            }
+        });
+        return this;
+    }
+
+    /**
      * build cart model
      * @return  {Cart}
      */

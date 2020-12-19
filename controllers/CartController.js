@@ -62,12 +62,10 @@ class CartController {
     async update(req, res, next) {
         try {
             const data = req.body;
-            const userId = req.user.role.name === 'admin'
-                ? +req.params.userId
-                : req.user.id;
-            const isMerge = req.query.isMerge;
+            const type = req.query.type;
+            const userId = req.user.role.name === 'admin' ? +req.params.userId : req.user.id;
 
-            const result = await this.cartService.updateProducts(userId, data, isMerge);
+            const result = await this.cartService.updateProducts(userId, data, type);
             return res.status(200).json(result);
         }
         catch (error) {

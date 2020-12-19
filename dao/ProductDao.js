@@ -221,18 +221,19 @@ class ProductDao extends Dao {
     /**
  * get producs for cart
  * @param   {number[]}    ids
- * @return  {Promise<Product[]>}
+ * @return  {Promise<number[]>}
  */
     async getForCart(ids) {
         const list = ids.map((id, idx) =>
             idx !== ids.length - 1 ? `$${idx + 1},` : `$${idx + 1}`
         ).join('');
 
-        const sql = `select id, price from products where id in(${list})`;
+        const sql = `select id from products where id in(${list})`;
         const values = [...ids];
-        const schema = { id: 'id', price: 'price' };
+        const schema = { id: 'id' };
 
-        return this.executeProducts(sql, values, schema);
+        const result = await this.executeProducts(sql, values, schema);
+        return result.map(p => p.id);
     }
 
     /**

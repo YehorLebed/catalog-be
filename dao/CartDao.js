@@ -118,9 +118,7 @@ class CartDao extends Dao {
      * @return  {Promise<void>}
      */
     async update(cart) {
-        const sql = `update carts 
-        set user_id=$2, products=$3, updated_at=$4
-        where id = $1`;
+        const sql = `update carts set user_id=$2, products=$3, updated_at=$4 where id = $1`;
         const products = JSON.stringify(cart.products);
         const values = [cart.id, cart.user.id, products, cart.updatedAt];
 
