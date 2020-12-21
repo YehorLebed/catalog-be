@@ -91,6 +91,7 @@ class CartService {
 
         let updatedCart = null
         if (type === 'add') {
+            products = await this.filterCartProductsExists(products);
             updatedCart = CartBuilder.Build()
                 .setCart(cartExists)
                 .addCartProducts(products)
@@ -103,13 +104,13 @@ class CartService {
                 .build();
         }
         else if (type === 'merge') {
+            products = await this.filterCartProductsExists(products);
             updatedCart = CartBuilder.Build()
                 .setCart(cartExists)
                 .mergeCartProducts(products)
                 .build();
         }
 
-        updatedCart.products = await this.filterCartProductsExists(updatedCart.products);
         return await this.cartDao.update(updatedCart);
     }
 
@@ -130,7 +131,7 @@ class CartService {
     async filterCartProductsExists(cartProducts) {
         const products = await this.productDao.getForCart(cartProducts.map(p => p.id));
         const idsProductExists = products.map(p => p.id);
-        return cartProducts.filter(cp => !idsProductExists.includes(cp.id));
+        return cartProducts.filter(cp => idsProductExists.includes(cp.id));
     }
 
 }

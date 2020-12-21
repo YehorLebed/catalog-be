@@ -37,7 +37,6 @@ class CartDao extends Dao {
             }
         }
         catch (error) {
-            console.log(error);
             throw new ServerError(`Failed to get cart by user id from database`);
         }
         return cart;

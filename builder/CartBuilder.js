@@ -109,7 +109,7 @@ class CartBuilder {
 
     /**
      * remove products from cart
-     * @param   {CartProduct}  products  products to remove
+     * @param   {CartProduct[]}  products  products to remove
      * @return  {CartBuilder}
      */
     removeCartProducts(products) {
@@ -117,8 +117,11 @@ class CartBuilder {
             const idx = this.cart.products.findIndex(p => p.id === product.id);
             if (idx !== -1) {
                 this.cart.products[idx].quantity -= product.quantity;
-                if (this.cart.products.quantity === 0) {
-                    this.cart.products = this.cart.products.filter(p => p.id !== product.id);
+                if (this.cart.products[idx].quantity === 0) {
+                    this.cart.products = [
+                        ...this.cart.products.slice(0, idx),
+                        ...this.cart.products.slice(idx + 1)
+                    ];
                 }
             }
         });

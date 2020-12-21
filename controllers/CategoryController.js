@@ -25,7 +25,6 @@ class CategoryController {
             return res.status(200).json({ categories: result });
         }
         catch (error) {
-            console.log(error);
             const errorHelper = new ErrorHelper(error);
             return errorHelper.processResponse(res);
         }
