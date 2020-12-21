@@ -107,13 +107,18 @@ class CartBuilder {
         return this;
     }
 
+    /**
+     * remove products from cart
+     * @param   {CartProduct}  products  products to remove
+     * @return  {CartBuilder}
+     */
     removeCartProducts(products) {
         products.forEach(product => {
             const idx = this.cart.products.findIndex(p => p.id === product.id);
             if (idx !== -1) {
                 this.cart.products[idx].quantity -= product.quantity;
                 if (this.cart.products.quantity === 0) {
-                    this.cart.products = this.cart.products.filter(p => p.id === product.id);
+                    this.cart.products = this.cart.products.filter(p => p.id !== product.id);
                 }
             }
         });
