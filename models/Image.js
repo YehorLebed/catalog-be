@@ -12,7 +12,7 @@ class Image {
     static DEFAULT_NAME = 'original';
 
     static DIR = path.join(path.dirname(__dirname), 'public', 'images', 'products');
-    static DIR_FOR_CLIENT = path.join('images', 'products');
+    static DIR_FOR_CLIENT = path.join('/images', 'products');
 
     /**
      * ProductImage constructor

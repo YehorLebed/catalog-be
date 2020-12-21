@@ -30,8 +30,11 @@ class ServiceFactory {
             ])));
         }
         else if (type === 'image') {
-            const imageDao = await DaoFactory.createDao('image')
-            return new ImageService(imageDao);
+            const client = await DaoFactory.createClient();
+            return new ImageService(...(await Promise.all([
+                DaoFactory.createDao('image', client),
+                DaoFactory.createDao('product', client),
+            ])));
         }
         else if (type === 'product') {
             const client = await DaoFactory.createClient();

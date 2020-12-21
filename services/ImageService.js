@@ -3,15 +3,18 @@ const { Image } = require('../models');
 const { ImageDao } = require('../dao');
 const { ImageBuilder } = require('../builder')
 const { FsHelper } = require('../utils/FsHelper');
+const { BadRequestError } = require('../utils/ErrorHelper/customErrors/BadRequestError');
 
 class ImageService {
 
     /**
      * ImageService constructor
      * @param   {ImageDao}  imageDao  image dao
+     * @param   {ImageDao}  productDao  image dao
      */
-    constructor(imageDao) {
+    constructor(imageDao, productDao) {
         this.imageDao = imageDao;
+        this.productDao = productDao;
     }
 
     /**
@@ -19,8 +22,15 @@ class ImageService {
      * @param   {Request}  req  request
      * @return  {Promise<Image>}
      */
-    save(req) {
-        return this.imageDao.save(req);
+    async save(req) {
+        const productId = req.params['id'];
+        try {
+            const image = await this.imageDao.save(req);
+            this.productDao.updatePropertyById(productId, 'image', JSON.stringify(image));
+        } catch (error) {
+            await this.delete(productId);
+            throw BadRequestError('Failed to save image');
+        }
     }
 
     /**

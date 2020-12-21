@@ -300,6 +300,22 @@ class ProductDao extends Dao {
     }
 
     /**
+     * update property
+     * @param   {number}  id     product id
+     * @param   {string}  name   property name
+     * @param   {number|string|boolean}  value  value
+     * @return  {void}
+     */
+    async updatePropertyById(id, name, value) {
+        if (!Product.attributes.includes(name)) {
+            throw new Error('Failed to update user property: Invalid property provided');
+        }
+        const sql = `update products set ${name}=$2 where id = $1`;
+        const values = [id, value];
+        await this.executeProducts(sql, values);
+    }
+
+    /**
      * delete product by id
      * @param   {number}  id product id
      * @return  {Promise<void>}

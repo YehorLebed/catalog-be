@@ -1,8 +1,9 @@
 const moment = require('moment');
 const { Rule } = require('../utils/validator/Rule');
+const { Image } = require('../models/Image');
 const { Product, ProductView } = require('../models');
 const { ProductBuilder } = require('../builder/ProductBuilder');
-const { ProductDao, ImageDao, CategoryDao, ProductViewDao } = require('../dao');
+const { ProductDao, ImageDao, CategoryDao, } = require('../dao');
 const { UnprocessableEntityError, BadRequestError } = require('../utils/ErrorHelper/customErrors');
 const { Validator } = require('../utils/validator/Validator');
 

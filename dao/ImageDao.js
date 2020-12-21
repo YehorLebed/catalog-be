@@ -28,13 +28,14 @@ class ImageDao {
 
         try {
             const original = await this._saveUsingMulter(req);
-            const small = await this._saveCustom(original, Image.SIZE_SMALL, 'small');
-            const medium = await this._saveCustom(original, Image.SIZE_MEDIUM, 'medium');
+            await this._compress(original.serverPath);
+            const small = await this._saveCustom(original.serverPath, Image.SIZE_SMALL, 'small');
+            const medium = await this._saveCustom(original.serverPath, Image.SIZE_MEDIUM, 'medium');
 
             image = ImageBuilder.Build()
                 .addPathToSmall(small)
                 .addPathToMedium(medium)
-                .addPathToOriginal(original)
+                .addPathToOriginal(original.clientPath)
                 .build();
         }
         catch (error) {
@@ -83,8 +84,11 @@ class ImageDao {
                 } else {
                     // prepare image src
                     const id = req.params.id;
-                    const imagePath = path.join(Image.DIR_FOR_CLIENT, id, 'original.jpg')
-                    resolve(imagePath);
+                    const fileName = 'original.jpg';
+                    return resolve({
+                        clientPath: path.join(Image.DIR_FOR_CLIENT, id, fileName),
+                        serverPath: path.join(Image.DIR, id, fileName),
+                    });
                 }
             });
         })
